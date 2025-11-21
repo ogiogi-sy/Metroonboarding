@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Metro Banking Design System Colors - Updated Style Guide */
+  --primary-blue: #0033A0;
+  --dark-blue: #001A72;
+  --primary-red: #E4002B;
+  --white: #FFFFFF;
+  --black: #000D45;
+  --light-blue-bg: #E9F2FF;
+  --gray-100: #F5F7FA;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-400: #94A3B8;
+  --gray-600: #475569; /* Darker gray for better contrast */
+  --gray-700: #334155; /* Even darker for secondary text */
+  
+  /* Gradients */
+  --gradient-blue-from: #0033A0;
+  --gradient-blue-to: #001A72;
+  --gradient-red-from: #E4002B;
+  --gradient-red-to: #FF4A4A;
+  
+  /* Semantic Colors */
+  --success-green: #16A34A;
+  --warning-orange: #EA580C;
+  --error-red: #B91C1C;
+  
+  /* Design tokens mapped to Tailwind */
+  --background: #FFFFFF;
+  --foreground: #000D45;
+  --card: #FFFFFF;
+  --card-foreground: #000D45;
+  --popover: #FFFFFF;
+  --popover-foreground: #000D45;
+  --primary: #0033A0;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFFFFF;
+  --secondary-foreground: #0033A0;
+  --muted: #F5F7FA;
+  --muted-foreground: #475569; /* Improved from #94A3B8 for better contrast */
+  --accent: #0033A0;
+  --accent-foreground: #FFFFFF;
+  --destructive: #B91C1C;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --input-background: #FFFFFF;
+  --switch-background: #E2E8F0;
+  --ring: #0033A0;
+  
+  /* Spacing scale: 8, 12, 16, 24, 32, 48, 96px */
+  --spacing-xs: 0.5rem; /* 8px */
+  --spacing-sm: 0.75rem; /* 12px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+  --spacing-3xl: 6rem; /* 96px */
+  
+  /* Rounded corners */
+  --radius-minor: 0.5rem; /* 8px */
+  --radius-input: 0.5rem; /* 8px */
+  --radius-card: 1rem; /* 16px */
+  --radius-pill: 999px;
+  
+  /* Shadows */
+  --shadow-card: 0px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  --background: #000D45;
+  --foreground: #FFFFFF;
+  --card: #001056;
+  --card-foreground: #FFFFFF;
+  --popover: #001056;
+  --popover-foreground: #FFFFFF;
+  --primary: #E4002B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #0033A0;
+  --secondary-foreground: #FFFFFF;
+  --muted: #001A72;
+  --muted-foreground: #94A3B8;
+  --accent: #0033A0;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #1E40AF;
+  --input: #1E40AF;
+  --ring: #3B82F6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --radius-sm: var(--radius-minor);
+  --radius-md: var(--radius-input);
+  --radius-lg: var(--radius-card);
+  --radius-xl: var(--radius-card);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/**
+ * Metro Banking Typography System - Updated to match Metro Bank website
+ * Following Metro Bank's design: NO BOLD fonts, clean and modern
+ * H1: 48px Regular (400)
+ * H2: 32px Regular (400) 
+ * H3: 24px Regular (400)
+ * H4: 20px Regular (400)
+ * Body: 16px Regular (400)
+ * Body Small: 14px Regular (400)
+ */
+@layer base {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
+    h1 {
+      font-size: 3rem; /* 48px */
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--dark-blue);
+      letter-spacing: -0.01em;
+    }
+
+    h2 {
+      font-size: 2rem; /* 32px */
+      font-weight: 400;
+      line-height: 1.3;
+      color: var(--dark-blue);
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      font-size: 1.5rem; /* 24px */
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--dark-blue);
+    }
+
+    h4 {
+      font-size: 1.25rem; /* 20px */
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--dark-blue);
+    }
+
+    h5 {
+      font-size: 1.125rem; /* 18px */
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--dark-blue);
+    }
+
+    p {
+      font-size: 1rem; /* 16px */
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--black);
+    }
+
+    label {
+      font-size: 0.875rem; /* 14px */
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--black);
+    }
+
+    button {
+      font-size: 1rem; /* 16px */
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    input, textarea, select {
+      font-size: 1rem; /* 16px */
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--black);
+    }
+  }
+}
+
+html {
+  font-size: 16px; /* Base for rem calculations */
+}
+
+/* Utility classes for body text sizes */
+.body-large {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.6;
+}
+
+.body {
+  font-size: 1rem; /* 16px */
+  line-height: 1.6;
+}
+
+.body-small {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.5;
+}
+
+/* Confetti animation for celebration */
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti {
+  animation: confetti 3s ease-out forwards;
+}
+
+/* Focus ring styles - Metro Banking standard */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
