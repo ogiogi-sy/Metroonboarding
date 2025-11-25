@@ -1,5 +1,5 @@
 import { Button } from '../ui/button';
-import { CreditCard, TrendingUp, Globe, Shield, ChevronRight, Sparkles, LayoutDashboard, CheckCircle2, ArrowRight } from 'lucide-react';
+import { CreditCard, TrendingUp, Globe, Shield, ChevronRight, Sparkles, LayoutDashboard, CheckCircle2, ArrowRight, ArrowLeftRight } from 'lucide-react';
 import { HelpWidget } from '../HelpWidget';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -8,6 +8,8 @@ import { LendingFlow, LendingApplicationData } from '../lending/LendingFlow';
 import { AdminCenterScreen } from './AdminCenterScreen';
 import { NavigationSidebar } from '../NavigationSidebar';
 
+import { MobileNav } from '../MobileNav';
+
 const LENDING_STORAGE_KEY = 'metro_lending_application_draft';
 
 interface Round2HomeScreenProps {
@@ -15,9 +17,18 @@ interface Round2HomeScreenProps {
   businessData: any;
   activeSection?: 'home' | 'lending' | 'funding' | 'admin';
   onCompleteFunding?: () => void;
+  selectedAccounts?: string[];
+  onAccountSelectionChange?: (accountIds: string[]) => void;
 }
 
-export function Round2HomeScreen({ onNavigate, businessData, activeSection = 'home', onCompleteFunding }: Round2HomeScreenProps) {
+export function Round2HomeScreen({ 
+  onNavigate, 
+  businessData, 
+  activeSection = 'home', 
+  onCompleteFunding,
+  selectedAccounts = ['1', '2'],
+  onAccountSelectionChange 
+}: Round2HomeScreenProps) {
   const [activeView, setActiveView] = useState<'home' | 'lending' | 'funding' | 'admin'>(activeSection);
   const [resumeData, setResumeData] = useState<LendingApplicationData | null>(null);
 
@@ -169,6 +180,8 @@ export function Round2HomeScreen({ onNavigate, businessData, activeSection = 'ho
           }
         }}
         businessData={businessData}
+        selectedAccounts={selectedAccounts}
+        onAccountSelectionChange={onAccountSelectionChange}
       />
 
       {/* Main Content Area */}
@@ -178,9 +191,36 @@ export function Round2HomeScreen({ onNavigate, businessData, activeSection = 'ho
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               {/* Left: Page Title */}
-              <div>
-                <h1 className="text-2xl" style={{ color: '#001A72' }}>Dashboard</h1>
-                <p className="text-sm text-muted-foreground">Welcome back to Metro Bank</p>
+              <div className="flex items-center gap-4">
+                <MobileNav
+                  activeSection={activeView}
+                  onNavigate={(section: string) => {
+                    if (section === 'home') {
+                      setActiveView('home');
+                      onNavigate('home');
+                    } else if (section === 'lending') {
+                      setActiveView('lending');
+                      onNavigate('lending');
+                    } else if (section === 'admin') {
+                      setActiveView('admin');
+                      onNavigate('admin');
+                    } else if (section === 'dashboard') {
+                      onNavigate('dashboard');
+                    } else if (section === 'propositions') {
+                      onNavigate('propositions');
+                    } else {
+                      // Handle other sections
+                      onNavigate(section as any);
+                    }
+                  }}
+                  businessData={businessData}
+                  selectedAccounts={selectedAccounts}
+                  onAccountSelectionChange={onAccountSelectionChange}
+                />
+                <div>
+                  <h1 className="text-2xl" style={{ color: '#001A72' }}>Dashboard</h1>
+                  <p className="text-sm text-muted-foreground">Welcome back to Metro Bank</p>
+                </div>
               </div>
 
               {/* Right: Actions */}
@@ -286,17 +326,20 @@ export function Round2HomeScreen({ onNavigate, businessData, activeSection = 'ho
                     </p>
                   </button>
 
-                  {/* Card 3: Payment Tools */}
+                  {/* Card 3: Switch from another Bank */}
                   <button
-                    onClick={() => onNavigate('payments')}
+                    onClick={() => {
+                      setActiveView('admin');
+                      onNavigate('admin');
+                    }}
                     className="bg-white rounded-2xl p-5 text-left hover:shadow-lg transition-all group border border-transparent hover:border-[#16A34A]"
                   >
                     <div className="w-10 h-10 bg-[#16A34A]/10 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Globe className="w-5 h-5 text-[#16A34A]" />
+                      <ArrowLeftRight className="w-5 h-5 text-[#16A34A]" />
                     </div>
-                    <h4 className="mb-2 text-sm" style={{ color: '#001A72' }}>Set Up Payment Tools</h4>
+                    <h4 className="mb-2 text-sm" style={{ color: '#001A72' }}>Switch from another Bank</h4>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      International payments and business cards
+                      Transfer your account smoothly with CASS
                     </p>
                   </button>
 

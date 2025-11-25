@@ -21,14 +21,22 @@ import {
   Search,
   Smartphone,
   Shield,
-  FileCheck
+  FileCheck,
+  Sparkles,
+  Landmark,
+  Settings,
+  Wallet,
+  ArrowRightLeft,
+  HelpCircle,
+  History
 } from 'lucide-react';
 
 interface NavigationMenuScreenProps {
   onNavigate: (step: number, phase: 1 | 2, phase2Flow?: string, phase2Step?: number) => void;
+  onShowDesignSystem: () => void;
 }
 
-export function NavigationMenuScreen({ onNavigate }: NavigationMenuScreenProps) {
+export function NavigationMenuScreen({ onNavigate, onShowDesignSystem }: NavigationMenuScreenProps) {
   const phase1Screens = [
     { step: 1, name: 'Business Lookup', icon: Search, description: 'Search Companies House or enter manually', stepNum: 1 },
     { step: 2, name: 'Business Confirmation', icon: Building2, description: 'Confirm business details', stepNum: 2 },
@@ -53,6 +61,15 @@ export function NavigationMenuScreen({ onNavigate }: NavigationMenuScreenProps) 
     { flow: 'plan', step: 4, name: 'Plan Confirmation', icon: CreditCard, description: 'Confirm selection' },
     { flow: 'funding', step: 1, name: 'Lending Journey', icon: Banknote, description: 'Complete lending flow' },
     { flow: 'dashboard', step: 1, name: 'Business Dashboard', icon: LayoutDashboard, description: 'Main banking dashboard' },
+    { flow: 'accounts', step: 1, name: 'Accounts Overview', icon: Wallet, description: 'All accounts' },
+    { flow: 'account-transactions', step: 1, name: 'Transactions', icon: History, description: 'Transaction history' },
+    { flow: 'payments', step: 1, name: 'Payments', icon: ArrowRightLeft, description: 'Transfers & payments' },
+    { flow: 'cards', step: 1, name: 'Cards', icon: CreditCard, description: 'Manage cards' },
+    { flow: 'propositions', step: 1, name: 'Propositions', icon: Sparkles, description: 'Marketplace offers' },
+    { flow: 'lending', step: 1, name: 'Lending Center', icon: Landmark, description: 'Loans and finance' },
+    { flow: 'documents', step: 1, name: 'Documents', icon: FileText, description: 'Statements & docs' },
+    { flow: 'admin', step: 1, name: 'Admin Center', icon: Settings, description: 'User management' },
+    { flow: 'support', step: 1, name: 'Support', icon: HelpCircle, description: 'Help & FAQ' },
   ];
 
   return (
@@ -63,8 +80,8 @@ export function NavigationMenuScreen({ onNavigate }: NavigationMenuScreenProps) 
           <div className="flex items-start gap-6">
             {/* Icon */}
             <div className="hidden sm:block">
-              <div className="w-24 h-24 bg-accent rounded-3xl flex items-center justify-center shrink-0">
-                <Map className="w-12 h-12 text-white" strokeWidth={1.5} />
+              <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center shrink-0 shadow-sm">
+                <Map className="w-12 h-12 text-primary-foreground" strokeWidth={1.5} />
               </div>
             </div>
             
@@ -165,6 +182,63 @@ export function NavigationMenuScreen({ onNavigate }: NavigationMenuScreenProps) 
                 </Card>
               );
             })}
+          </div>
+        </div>
+
+        {/* Design System Section */}
+        <div className="mb-8">
+          <div className="mb-6">
+            <h2 className="mb-2">Design & Development</h2>
+            <p className="text-sm text-muted-foreground">Resources and style guides</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <Card
+              className="hover:shadow-md hover:border-accent/50 transition-all cursor-pointer group bg-white"
+              onClick={onShowDesignSystem}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-[#E9F2FF] group-hover:bg-accent/10 flex items-center justify-center shrink-0 transition-colors">
+                    <LayoutDashboard className="w-5 h-5 text-accent" />
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground mb-1">
+                  Documentation
+                </div>
+                <CardTitle className="text-base leading-tight">
+                  Design System
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground">
+                  View color palette, typography, and component library
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="hover:shadow-md hover:border-accent/50 transition-all cursor-pointer group bg-white"
+              onClick={() => onNavigate(1, 2, 'dashboard', 1)}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-[#E9F2FF] group-hover:bg-accent/10 flex items-center justify-center shrink-0 transition-colors">
+                    <LayoutDashboard className="w-5 h-5 text-accent" />
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground mb-1">
+                  Application
+                </div>
+                <CardTitle className="text-base leading-tight">
+                  Business Dashboard
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground">
+                  Main banking dashboard with insights and widgets
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
 

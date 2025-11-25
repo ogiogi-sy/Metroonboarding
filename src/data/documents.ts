@@ -1,0 +1,521 @@
+export interface Document {
+  id: string;
+  type: 'Statement' | 'Letter' | 'Notice' | 'Tax' | 'Verification' | 'Uploaded' | 'Correspondence';
+  entity: string;
+  account: string;
+  accountNumber: string;
+  title: string;
+  date: string;
+  status: 'Unread' | 'Read';
+  size: string;
+  file: string;
+  description?: string;
+}
+
+export const mockDocuments: Document[] = [
+  // Statements (12)
+  {
+    id: 'DOC-003845',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Statement • November 2025',
+    date: '2025-11-01',
+    status: 'Unread',
+    size: '245 KB',
+    file: '/mock/statements/nov2025.pdf',
+    description: 'Monthly statement for November 2025'
+  },
+  {
+    id: 'DOC-003844',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Statement • October 2025',
+    date: '2025-10-01',
+    status: 'Read',
+    size: '238 KB',
+    file: '/mock/statements/oct2025.pdf',
+    description: 'Monthly statement for October 2025'
+  },
+  {
+    id: 'DOC-003843',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Statement • September 2025',
+    date: '2025-09-01',
+    status: 'Read',
+    size: '251 KB',
+    file: '/mock/statements/sep2025.pdf',
+    description: 'Monthly statement for September 2025'
+  },
+  {
+    id: 'DOC-003842',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Savings Account',
+    accountNumber: '87654321',
+    title: 'Statement • November 2025',
+    date: '2025-11-01',
+    status: 'Read',
+    size: '142 KB',
+    file: '/mock/statements/savings-nov2025.pdf',
+    description: 'Monthly statement for November 2025'
+  },
+  {
+    id: 'DOC-003841',
+    type: 'Statement',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Statement • November 2025',
+    date: '2025-11-01',
+    status: 'Unread',
+    size: '287 KB',
+    file: '/mock/statements/tech-nov2025.pdf',
+    description: 'Monthly statement for November 2025'
+  },
+  {
+    id: 'DOC-003840',
+    type: 'Statement',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Statement • October 2025',
+    date: '2025-10-01',
+    status: 'Read',
+    size: '294 KB',
+    file: '/mock/statements/tech-oct2025.pdf',
+    description: 'Monthly statement for October 2025'
+  },
+  {
+    id: 'DOC-003839',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Statement • August 2025',
+    date: '2025-08-01',
+    status: 'Read',
+    size: '229 KB',
+    file: '/mock/statements/aug2025.pdf',
+    description: 'Monthly statement for August 2025'
+  },
+  {
+    id: 'DOC-003838',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Statement • July 2025',
+    date: '2025-07-01',
+    status: 'Read',
+    size: '235 KB',
+    file: '/mock/statements/jul2025.pdf',
+    description: 'Monthly statement for July 2025'
+  },
+  {
+    id: 'DOC-003837',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Statement • June 2025',
+    date: '2025-06-01',
+    status: 'Read',
+    size: '241 KB',
+    file: '/mock/statements/jun2025.pdf',
+    description: 'Monthly statement for June 2025'
+  },
+  {
+    id: 'DOC-003836',
+    type: 'Statement',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Statement • September 2025',
+    date: '2025-09-01',
+    status: 'Read',
+    size: '276 KB',
+    file: '/mock/statements/tech-sep2025.pdf',
+    description: 'Monthly statement for September 2025'
+  },
+  {
+    id: 'DOC-003835',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Savings Account',
+    accountNumber: '87654321',
+    title: 'Statement • October 2025',
+    date: '2025-10-01',
+    status: 'Read',
+    size: '138 KB',
+    file: '/mock/statements/savings-oct2025.pdf',
+    description: 'Monthly statement for October 2025'
+  },
+  {
+    id: 'DOC-003834',
+    type: 'Statement',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Statement • May 2025',
+    date: '2025-05-01',
+    status: 'Read',
+    size: '233 KB',
+    file: '/mock/statements/may2025.pdf',
+    description: 'Monthly statement for May 2025'
+  },
+
+  // Tax Documents (4)
+  {
+    id: 'DOC-003833',
+    type: 'Tax',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Tax Year Summary 2024/25',
+    date: '2025-04-06',
+    status: 'Read',
+    size: '167 KB',
+    file: '/mock/tax/tax-summary-2024-25.pdf',
+    description: 'Annual tax summary for 2024/25 financial year'
+  },
+  {
+    id: 'DOC-003832',
+    type: 'Tax',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Interest Certificate 2024/25',
+    date: '2025-04-06',
+    status: 'Read',
+    size: '98 KB',
+    file: '/mock/tax/interest-cert-2024-25.pdf',
+    description: 'Interest earned certificate for tax purposes'
+  },
+  {
+    id: 'DOC-003831',
+    type: 'Tax',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Tax Year Summary 2024/25',
+    date: '2025-04-06',
+    status: 'Unread',
+    size: '172 KB',
+    file: '/mock/tax/tech-tax-summary-2024-25.pdf',
+    description: 'Annual tax summary for 2024/25 financial year'
+  },
+  {
+    id: 'DOC-003830',
+    type: 'Tax',
+    entity: 'Acme Ltd',
+    account: 'Business Savings Account',
+    accountNumber: '87654321',
+    title: 'Interest Certificate 2024/25',
+    date: '2025-04-06',
+    status: 'Read',
+    size: '94 KB',
+    file: '/mock/tax/savings-interest-cert-2024-25.pdf',
+    description: 'Interest earned certificate for savings account'
+  },
+
+  // Letters (8)
+  {
+    id: 'DOC-003829',
+    type: 'Letter',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Account Services Update',
+    date: '2025-11-15',
+    status: 'Unread',
+    size: '124 KB',
+    file: '/mock/letters/services-update-nov2025.pdf',
+    description: 'Information about upcoming service changes'
+  },
+  {
+    id: 'DOC-003828',
+    type: 'Letter',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Overdraft Facility Confirmation',
+    date: '2025-10-22',
+    status: 'Read',
+    size: '156 KB',
+    file: '/mock/letters/overdraft-confirmation.pdf',
+    description: 'Confirmation of overdraft facility approval'
+  },
+  {
+    id: 'DOC-003827',
+    type: 'Letter',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Annual Fee Schedule',
+    date: '2025-09-30',
+    status: 'Read',
+    size: '189 KB',
+    file: '/mock/letters/fee-schedule-2025.pdf',
+    description: 'Updated fee schedule for business services'
+  },
+  {
+    id: 'DOC-003826',
+    type: 'Letter',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Welcome to Metro Business Banking',
+    date: '2025-08-14',
+    status: 'Read',
+    size: '213 KB',
+    file: '/mock/letters/welcome-tech-ventures.pdf',
+    description: 'Welcome letter and getting started guide'
+  },
+  {
+    id: 'DOC-003825',
+    type: 'Letter',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Terms & Conditions Update',
+    date: '2025-07-19',
+    status: 'Read',
+    size: '278 KB',
+    file: '/mock/letters/terms-update-jul2025.pdf',
+    description: 'Updated terms and conditions for your account'
+  },
+  {
+    id: 'DOC-003824',
+    type: 'Letter',
+    entity: 'Acme Ltd',
+    account: 'Business Savings Account',
+    accountNumber: '87654321',
+    title: 'Interest Rate Change Notification',
+    date: '2025-06-05',
+    status: 'Read',
+    size: '112 KB',
+    file: '/mock/letters/rate-change-jun2025.pdf',
+    description: 'Notice of interest rate adjustment'
+  },
+  {
+    id: 'DOC-003823',
+    type: 'Letter',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Debit Card PIN Reminder',
+    date: '2025-05-12',
+    status: 'Read',
+    size: '87 KB',
+    file: '/mock/letters/pin-reminder.pdf',
+    description: 'Security reminder about your card PIN'
+  },
+  {
+    id: 'DOC-003822',
+    type: 'Letter',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Account Services Update',
+    date: '2025-11-15',
+    status: 'Read',
+    size: '124 KB',
+    file: '/mock/letters/tech-services-update.pdf',
+    description: 'Information about upcoming service changes'
+  },
+
+  // Notices (6)
+  {
+    id: 'DOC-003821',
+    type: 'Notice',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Direct Debit Payment Failed',
+    date: '2025-11-18',
+    status: 'Unread',
+    size: '78 KB',
+    file: '/mock/notices/dd-failed-nov2025.pdf',
+    description: 'Notice of failed direct debit payment'
+  },
+  {
+    id: 'DOC-003820',
+    type: 'Notice',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Large Transaction Alert',
+    date: '2025-11-10',
+    status: 'Read',
+    size: '65 KB',
+    file: '/mock/notices/large-transaction-alert.pdf',
+    description: 'Security notification for large transaction'
+  },
+  {
+    id: 'DOC-003819',
+    type: 'Notice',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Approaching Overdraft Limit',
+    date: '2025-10-28',
+    status: 'Read',
+    size: '72 KB',
+    file: '/mock/notices/overdraft-warning.pdf',
+    description: 'Warning that account is near overdraft limit'
+  },
+  {
+    id: 'DOC-003818',
+    type: 'Notice',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Account Verification Required',
+    date: '2025-09-15',
+    status: 'Read',
+    size: '91 KB',
+    file: '/mock/notices/verification-required.pdf',
+    description: 'Request for updated account verification'
+  },
+  {
+    id: 'DOC-003817',
+    type: 'Notice',
+    entity: 'Acme Ltd',
+    account: 'Business Savings Account',
+    accountNumber: '87654321',
+    title: 'Deposit Received Confirmation',
+    date: '2025-08-22',
+    status: 'Read',
+    size: '58 KB',
+    file: '/mock/notices/deposit-confirmation.pdf',
+    description: 'Confirmation of large deposit received'
+  },
+  {
+    id: 'DOC-003816',
+    type: 'Notice',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Unusual Activity Detected',
+    date: '2025-07-30',
+    status: 'Read',
+    size: '83 KB',
+    file: '/mock/notices/unusual-activity.pdf',
+    description: 'Security notice regarding account activity'
+  },
+
+  // Verification Letters (5)
+  {
+    id: 'DOC-003815',
+    type: 'Verification',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Balance Confirmation Letter',
+    date: '2025-11-12',
+    status: 'Read',
+    size: '134 KB',
+    file: '/mock/verification/balance-confirmation-nov2025.pdf',
+    description: 'Balance confirmation for auditor'
+  },
+  {
+    id: 'DOC-003814',
+    type: 'Verification',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Account Verification Letter',
+    date: '2025-10-05',
+    status: 'Read',
+    size: '127 KB',
+    file: '/mock/verification/account-verification-oct2025.pdf',
+    description: 'Account ownership verification letter'
+  },
+  {
+    id: 'DOC-003813',
+    type: 'Verification',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Balance Confirmation Letter',
+    date: '2025-09-18',
+    status: 'Read',
+    size: '139 KB',
+    file: '/mock/verification/tech-balance-confirmation.pdf',
+    description: 'Balance confirmation for visa application'
+  },
+  {
+    id: 'DOC-003812',
+    type: 'Verification',
+    entity: 'Acme Ltd',
+    account: 'Business Savings Account',
+    accountNumber: '87654321',
+    title: 'Account Verification Letter',
+    date: '2025-08-08',
+    status: 'Read',
+    size: '118 KB',
+    file: '/mock/verification/savings-verification.pdf',
+    description: 'Savings account verification letter'
+  },
+  {
+    id: 'DOC-003811',
+    type: 'Verification',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Balance Confirmation Letter',
+    date: '2025-06-20',
+    status: 'Read',
+    size: '131 KB',
+    file: '/mock/verification/balance-confirmation-jun2025.pdf',
+    description: 'Balance confirmation for accountant'
+  },
+
+  // Uploaded Documents (3)
+  {
+    id: 'DOC-003810',
+    type: 'Uploaded',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'Certificate of Incorporation',
+    date: '2025-11-01',
+    status: 'Read',
+    size: '342 KB',
+    file: '/mock/uploaded/certificate-of-incorporation.pdf',
+    description: 'Company incorporation certificate'
+  },
+  {
+    id: 'DOC-003809',
+    type: 'Uploaded',
+    entity: 'Acme Ltd',
+    account: 'Business Current Account',
+    accountNumber: '12345678',
+    title: 'VAT Registration Certificate',
+    date: '2025-10-15',
+    status: 'Read',
+    size: '215 KB',
+    file: '/mock/uploaded/vat-registration.pdf',
+    description: 'VAT registration documentation'
+  },
+  {
+    id: 'DOC-003808',
+    type: 'Uploaded',
+    entity: 'Tech Ventures Ltd',
+    account: 'Business Current Account',
+    accountNumber: '45678901',
+    title: 'Director ID Verification',
+    date: '2025-08-10',
+    status: 'Read',
+    size: '187 KB',
+    file: '/mock/uploaded/director-id.pdf',
+    description: 'Director identification documents'
+  },
+];

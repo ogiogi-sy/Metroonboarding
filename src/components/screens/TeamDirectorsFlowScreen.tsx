@@ -12,6 +12,8 @@ import { NavigationSidebar } from '../NavigationSidebar';
 interface TeamDirectorsFlowScreenProps {
   onNavigate: (screen: string) => void;
   businessData?: any;
+  selectedAccounts?: string[];
+  onAccountSelectionChange?: (accountIds: string[]) => void;
 }
 
 type TeamDirectorsSubScreen = 
@@ -24,7 +26,12 @@ type TeamDirectorsSubScreen =
   | 'mandates-editor' 
   | 'signatures-repository';
 
-export function TeamDirectorsFlowScreen({ onNavigate, businessData }: TeamDirectorsFlowScreenProps) {
+export function TeamDirectorsFlowScreen({ 
+  onNavigate, 
+  businessData,
+  selectedAccounts = ['1', '2'],
+  onAccountSelectionChange
+}: TeamDirectorsFlowScreenProps) {
   const [subScreen, setSubScreen] = useState<TeamDirectorsSubScreen>('team-directors');
 
   const handleSubNavigation = (screen: string) => {
@@ -67,6 +74,8 @@ export function TeamDirectorsFlowScreen({ onNavigate, businessData }: TeamDirect
         activeSection="admin"
         onNavigate={onNavigate}
         businessData={businessData}
+        selectedAccounts={selectedAccounts}
+        onAccountSelectionChange={onAccountSelectionChange}
       />
 
       {/* Main Content Area */}

@@ -33,8 +33,12 @@ import { LendingManagementScreen } from './components/screens/LendingManagementS
 import { AccountsScreen } from './components/screens/AccountsScreen';
 import { PaymentsScreen } from './components/screens/PaymentsScreen';
 import { CardsScreen } from './components/screens/CardsScreen';
+import { DocumentsScreen } from './components/screens/DocumentsScreen';
 import { SupportScreen } from './components/screens/SupportScreen';
 import { InsightsScreen } from './components/screens/InsightsScreen';
+import { AccountTransactionsScreen } from './components/screens/AccountTransactionsScreen';
+import { DesignSystemScreen } from './components/screens/DesignSystemScreen';
+import { Toaster } from './components/ui/sonner';
 
 const STORAGE_KEY = 'metro_onboarding_progress_v4';
 
@@ -89,7 +93,7 @@ interface OnboardingData {
   accountNumber?: string;
 }
 
-type Phase2Flow = 'home' | 'plan' | 'funding' | 'payments' | 'compliance' | 'dashboard' | 'propositions' | 'lending' | 'admin' | 'accounts' | 'cards' | 'support';
+type Phase2Flow = 'home' | 'plan' | 'funding' | 'payments' | 'compliance' | 'dashboard' | 'propositions' | 'lending' | 'admin' | 'accounts' | 'account-transactions' | 'cards' | 'support' | 'documents' | 'navigation-menu';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -98,7 +102,11 @@ export default function App() {
   const [phase2Step, setPhase2Step] = useState(1);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
+  const [selectedTransactionId, setSelectedTransactionId] = useState<string | undefined>(undefined);
   const [isManualEntry, setIsManualEntry] = useState(false);
+  const [showDesignSystem, setShowDesignSystem] = useState(false);
+  const [selectedBusinessAccounts, setSelectedBusinessAccounts] = useState<string[]>(['1', '2']);
   
   // Track Phase 2 category completion
   const [completedCategories, setCompletedCategories] = useState({
@@ -189,9 +197,24 @@ export default function App() {
     setPhase2Step(1);
   };
 
-  const navigatePhase2 = (flow: Phase2Flow) => {
+  const navigatePhase2 = (flow: Phase2Flow, params?: any) => {
+    if (flow === 'navigation-menu') {
+      setCurrentStep(0);
+      return;
+    }
+
     setPhase2Flow(flow);
     setPhase2Step(1);
+    
+    // Handle account-transactions navigation
+    if (flow === 'account-transactions') {
+      if (params?.accountId) {
+        setSelectedAccountId(params.accountId);
+      }
+      if (params?.transactionId) {
+        setSelectedTransactionId(params.transactionId);
+      }
+    }
   };
 
   const nextPhase2Step = () => {
@@ -211,7 +234,8 @@ export default function App() {
     setPhase(1);
     setPhase2Flow('home');
     setPhase2Step(1);
-    setIsManualEntry(false);
+    setSelectedAccountId(undefined);
+    setShowDesignSystem(false);
     setCompletedCategories({
       plan: false,
       funding: false,
@@ -258,6 +282,10 @@ export default function App() {
   const TOTAL_STEPS = 13;
 
   // Step 0: Navigation Menu (Developer Tool)
+  if (showDesignSystem) {
+    return <DesignSystemScreen onBack={() => setShowDesignSystem(false)} />;
+  }
+
   if (currentStep === 0) {
     return (
       <NavigationMenuScreen
@@ -269,6 +297,7 @@ export default function App() {
             setPhase2Step(targetPhase2Step || 1);
           }
         }}
+        onShowDesignSystem={() => setShowDesignSystem(true)}
       />
     );
   }
@@ -550,6 +579,8 @@ export default function App() {
       <Round2HomeScreen
         onNavigate={navigatePhase2}
         businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }
@@ -626,6 +657,8 @@ export default function App() {
           markCategoryComplete('funding');
           goToDashboard();
         }}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }
@@ -636,6 +669,20 @@ export default function App() {
       <PaymentsScreen
         onNavigate={navigatePhase2}
         businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
+      />
+    );
+  }
+
+  // Documents
+  if (phase2Flow === 'documents') {
+    return (
+      <DocumentsScreen
+        onNavigate={navigatePhase2}
+        businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }
@@ -643,10 +690,16 @@ export default function App() {
   // Dashboard
   if (phase2Flow === 'dashboard') {
     return (
-      <InsightsScreen
-        onNavigate={navigatePhase2}
-        businessData={onboardingData}
-      />
+      <>
+        <DashboardScreen
+          onNavigate={navigatePhase2}
+          businessData={onboardingData}
+          completedCategories={completedCategories}
+          selectedAccounts={selectedBusinessAccounts}
+          onAccountSelectionChange={setSelectedBusinessAccounts}
+        />
+        <Toaster />
+      </>
     );
   }
 
@@ -664,6 +717,8 @@ export default function App() {
           }
         }}
         businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }
@@ -675,6 +730,8 @@ export default function App() {
         onNavigate={navigatePhase2}
         businessData={onboardingData}
         activeSection="lending"
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }
@@ -686,6 +743,8 @@ export default function App() {
         onNavigate={navigatePhase2}
         businessData={onboardingData}
         activeSection="admin"
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }
@@ -693,10 +752,32 @@ export default function App() {
   // Accounts
   if (phase2Flow === 'accounts') {
     return (
-      <AccountsScreen
-        onNavigate={navigatePhase2}
-        businessData={onboardingData}
-      />
+      <>
+        <AccountsScreen
+          onNavigate={navigatePhase2}
+          businessData={onboardingData}
+          selectedAccounts={selectedBusinessAccounts}
+          onAccountSelectionChange={setSelectedBusinessAccounts}
+        />
+        <Toaster />
+      </>
+    );
+  }
+
+  // Account Transactions
+  if (phase2Flow === 'account-transactions') {
+    return (
+      <>
+        <AccountTransactionsScreen
+          onNavigate={navigatePhase2}
+          businessData={onboardingData}
+          accountId={selectedAccountId}
+          transactionId={selectedTransactionId}
+          selectedAccounts={selectedBusinessAccounts}
+          onAccountSelectionChange={setSelectedBusinessAccounts}
+        />
+        <Toaster />
+      </>
     );
   }
 
@@ -706,6 +787,8 @@ export default function App() {
       <CardsScreen
         onNavigate={navigatePhase2}
         businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }
@@ -716,6 +799,8 @@ export default function App() {
       <SupportScreen
         onNavigate={navigatePhase2}
         businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
       />
     );
   }

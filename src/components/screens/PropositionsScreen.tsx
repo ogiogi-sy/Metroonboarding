@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Check, Package, Users, TrendingUp, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { NavigationSidebar } from '../NavigationSidebar';
+import { MobileNav } from '../MobileNav';
 
 interface PropositionsScreenProps {
   onNavigate: (screen: string) => void;
   businessData: any;
+  selectedAccounts?: string[];
+  onAccountSelectionChange?: (accountIds: string[]) => void;
 }
 
 interface Proposition {
@@ -19,7 +22,12 @@ interface Proposition {
   features: string[];
 }
 
-export function PropositionsScreen({ onNavigate, businessData }: PropositionsScreenProps) {
+export function PropositionsScreen({ 
+  onNavigate, 
+  businessData,
+  selectedAccounts = ['1', '2'],
+  onAccountSelectionChange
+}: PropositionsScreenProps) {
   const [selectedPropositions, setSelectedPropositions] = useState<string[]>([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -132,6 +140,8 @@ export function PropositionsScreen({ onNavigate, businessData }: PropositionsScr
         activeSection="propositions"
         onNavigate={onNavigate} 
         businessData={businessData} 
+        selectedAccounts={selectedAccounts}
+        onAccountSelectionChange={onAccountSelectionChange}
       />
 
       {/* Main Content Area */}
@@ -142,6 +152,13 @@ export function PropositionsScreen({ onNavigate, businessData }: PropositionsScr
             <div className="flex items-center justify-between">
               {/* Left: Back button and Page Title */}
               <div className="flex items-center gap-4">
+                <MobileNav 
+                  activeSection="propositions" 
+                  onNavigate={onNavigate} 
+                  businessData={businessData} 
+                  selectedAccounts={selectedAccounts}
+                  onAccountSelectionChange={onAccountSelectionChange}
+                />
                 <button
                   onClick={() => onNavigate('dashboard')}
                   className="w-10 h-10 rounded-full hover:bg-muted/50 flex items-center justify-center transition-colors"

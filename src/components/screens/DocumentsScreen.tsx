@@ -1,24 +1,24 @@
 import { NavigationSidebar } from '../NavigationSidebar';
 import { MobileNav } from '../MobileNav';
-import { Support } from '../Support';
+import { Documents } from '../Documents';
 
-interface SupportScreenProps {
-  onNavigate: (section: string) => void;
+interface DocumentsScreenProps {
+  onNavigate: (section: string, params?: any) => void;
   businessData: any;
   selectedAccounts?: string[];
   onAccountSelectionChange?: (accountIds: string[]) => void;
 }
 
-export function SupportScreen({ 
+export function DocumentsScreen({ 
   onNavigate, 
   businessData,
   selectedAccounts = ['1', '2'],
   onAccountSelectionChange
-}: SupportScreenProps) {
+}: DocumentsScreenProps) {
   return (
     <div className="flex min-h-screen bg-[#F5F6F8]">
       <NavigationSidebar 
-        activeSection="support"
+        activeSection="documents"
         onNavigate={onNavigate}
         businessData={businessData}
         selectedAccounts={selectedAccounts}
@@ -33,7 +33,7 @@ export function SupportScreen({
               {/* Left: Mobile Nav */}
               <div className="flex items-center gap-4">
                 <MobileNav 
-                  activeSection="support" 
+                  activeSection="documents" 
                   onNavigate={onNavigate}
                   businessData={businessData}
                   selectedAccounts={selectedAccounts}
@@ -64,8 +64,8 @@ export function SupportScreen({
           </div>
         </header>
 
-        {/* Support Component */}
-        <Support />
+        {/* Documents Component */}
+        <Documents />
       </main>
     </div>
   );

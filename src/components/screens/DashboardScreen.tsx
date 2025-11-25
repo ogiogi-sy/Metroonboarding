@@ -1,18 +1,19 @@
 import { Button } from '../ui/button';
-import { ArrowRight, ArrowUpRight, ArrowDownLeft, Plus, Send, Download, TrendingUp, Package, Shield, CreditCard, ChevronRight, AlertCircle, Sparkles, DollarSign } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ArrowDownLeft, Copy, Download, Share2, TrendingUp, Package, Shield, CreditCard, ChevronRight, AlertCircle, Sparkles, DollarSign, Plus, Send } from 'lucide-react';
 import { HelpWidget } from '../HelpWidget';
+import { toast } from 'sonner';
 
 interface DashboardScreenProps {
-  onNavigateToRound2: () => void;
-  onNavigateToCategory: (category: 'plan' | 'funding' | 'payments' | 'compliance') => void;
-  onNavigateToLending?: () => void;
+  onNavigate: (section: string) => void;
   businessData: any;
-  completedCategories: {
+  completedCategories?: {
     plan: boolean;
     funding: boolean;
     payments: boolean;
     compliance: boolean;
   };
+  selectedAccounts?: string[];
+  onAccountSelectionChange?: (accountIds: string[]) => void;
 }
 
 const CATEGORY_NUDGES = [
@@ -74,16 +75,42 @@ const RECENT_TRANSACTIONS = [
 ];
 
 export function DashboardScreen({
-  onNavigateToRound2,
-  onNavigateToCategory,
-  onNavigateToLending,
+  onNavigate,
   businessData,
-  completedCategories,
+  completedCategories = {
+    plan: false,
+    funding: false,
+    payments: false,
+    compliance: false,
+  },
 }: DashboardScreenProps) {
   const sortCode = businessData.sortCode || '04-00-75';
   const accountNumber = businessData.accountNumber || '12345678';
   const companyName = businessData.companyName || 'Your Business';
   const balance = 0.00; // Starting balance
+
+  const handleCopyDetails = () => {
+     const details = `Account Name: ${companyName}\nAccount Number: ${accountNumber}\nSort Code: ${sortCode}`;
+     navigator.clipboard.writeText(details).then(() => {
+       toast.success("Account details copied");
+     }).catch(() => {
+       // Fallback
+       try {
+         const textArea = document.createElement("textarea");
+         textArea.value = details;
+         textArea.style.position = "fixed";
+         textArea.style.left = "-9999px";
+         document.body.appendChild(textArea);
+         textArea.focus();
+         textArea.select();
+         document.execCommand('copy');
+         document.body.removeChild(textArea);
+         toast.success("Account details copied");
+       } catch (err) {
+         toast.error("Failed to copy details");
+       }
+     });
+  };
 
   const incompleteCategories = CATEGORY_NUDGES.filter(
     (category) => !completedCategories[category.id]
@@ -105,7 +132,7 @@ export function DashboardScreen({
             </div>
             <Button
               variant="outline"
-              onClick={onNavigateToRound2}
+              onClick={() => onNavigate('home')}
               size="sm"
             >
               Enhance Account
@@ -130,7 +157,7 @@ export function DashboardScreen({
                 </p>
                 <div className="flex gap-2">
                   <Button
-                    onClick={onNavigateToRound2}
+                    onClick={() => onNavigate('home')}
                     size="sm"
                   >
                     Continue Setup
@@ -159,65 +186,75 @@ export function DashboardScreen({
                 </div>
               </div>
 
-              {/* Quick Actions */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Button variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
-                  <Plus className="w-5 h-5" />
-                  <span className="text-xs">Add Money</span>
+              {/* Quick Actions - UPDATED */}
+              <div className="grid grid-cols-3 gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:bg-accent/5 hover:text-accent hover:border-accent/50 transition-all"
+                  onClick={handleCopyDetails}
+                >
+                  <Copy className="w-5 h-5" />
+                  <span className="text-xs text-center">Copy details</span>
                 </Button>
-                <Button variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
-                  <Send className="w-5 h-5" />
-                  <span className="text-xs">Send Money</span>
-                </Button>
-                <Button variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                <Button 
+                  variant="outline" 
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:bg-accent/5 hover:text-accent hover:border-accent/50 transition-all"
+                  onClick={() => toast.success("Statement downloading...")}
+                >
                   <Download className="w-5 h-5" />
-                  <span className="text-xs">Statement</span>
+                  <span className="text-xs text-center">Download statement</span>
                 </Button>
-                <Button variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
-                  <CreditCard className="w-5 h-5" />
-                  <span className="text-xs">Cards</span>
+                <Button 
+                  variant="outline" 
+                  className="flex flex-col items-center gap-2 h-auto py-4 hover:bg-accent/5 hover:text-accent hover:border-accent/50 transition-all"
+                  onClick={() => toast.success("Payment instructions shared")}
+                >
+                  <Share2 className="w-5 h-5" />
+                  <span className="text-xs text-center">Share instructions</span>
                 </Button>
               </div>
             </div>
 
             {/* Lending CTA Card */}
-            {onNavigateToLending && (
-              <div
-                onClick={onNavigateToLending}
-                className="bg-gradient-to-br from-accent/5 to-primary/5 border-2 border-accent/20 rounded-xl p-6 cursor-pointer hover:border-accent hover:shadow-lg transition-all group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
-                    <DollarSign className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="mb-2 group-hover:text-accent transition-colors">
-                      Apply for a business loan
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Get funding to grow your business. Quick assessment in 3-5 minutes with no impact on your credit score.
-                    </p>
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-accent rounded-full" />
-                        <span>£5K - £500K available</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-accent rounded-full" />
-                        <span>From 6-60 months</span>
-                      </div>
+            <div
+              onClick={() => onNavigate('lending')}
+              className="bg-gradient-to-br from-accent/5 to-primary/5 border-2 border-accent/20 rounded-xl p-6 cursor-pointer hover:border-accent hover:shadow-lg transition-all group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="mb-2 group-hover:text-accent transition-colors">
+                    Apply for a business loan
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Get funding to grow your business. Quick assessment in 3-5 minutes with no impact on your credit score.
+                  </p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-accent rounded-full" />
+                      <span>£5K - £500K available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-accent rounded-full" />
+                      <span>From 6-60 months</span>
                     </div>
                   </div>
-                  <ChevronRight className="w-6 h-6 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
                 </div>
+                <ChevronRight className="w-6 h-6 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
               </div>
-            )}
+            </div>
 
             {/* Recent Transactions */}
             <div className="bg-white border border-border rounded-xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3>Recent Transactions</h3>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => onNavigate('account-transactions')}
+                >
                   View All
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -315,7 +352,7 @@ export function DashboardScreen({
               incompleteCategories.map((category) => (
                 <button
                   key={category.id}
-                  onClick={() => onNavigateToCategory(category.id)}
+                  onClick={() => onNavigate(category.id)}
                   className="w-full bg-white border border-border rounded-xl p-4 text-left hover:border-accent hover:shadow-md transition-all group"
                 >
                   <div className="flex items-start gap-3">
