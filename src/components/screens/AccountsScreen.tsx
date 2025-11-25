@@ -153,6 +153,7 @@ const generateMockTransactions = (count: number): Transaction[] => {
   const merchants = ['Apple Store', 'WeWork', 'HMRC', 'Google Ads', 'TFL', 'British Gas', 'AWS', 'Salesforce', 'McKinsey'];
   const statuses: Transaction['status'][] = ['completed', 'pending', 'failed'];
   const types = ['card', 'faster_payment', 'standing_order', 'direct_debit'];
+  const users = ['Alex Morgan', 'Sarah Chen', 'Mike Ross', 'Emma Watson', 'David Kim'];
 
   return Array.from({ length: count }).map((_, i) => {
     const isCredit = Math.random() > 0.8;
@@ -169,7 +170,8 @@ const generateMockTransactions = (count: number): Transaction[] => {
       time: `${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
       type: types[Math.floor(Math.random() * types.length)] as any,
       status: statuses[Math.floor(Math.random() * statuses.length)],
-      reference: `REF-${Math.random().toString(36).substring(7).toUpperCase()}`
+      reference: `REF-${Math.random().toString(36).substring(7).toUpperCase()}`,
+      user: users[Math.floor(Math.random() * users.length)]
     };
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };

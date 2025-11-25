@@ -1,4 +1,4 @@
-import { X, FileText, AlertCircle, CreditCard, Calendar, Tag, Download, Upload, ChevronRight, MessageSquare } from 'lucide-react';
+import { X, FileText, AlertCircle, CreditCard, Calendar, Tag, Download, Upload, ChevronRight, MessageSquare, MapPin, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { toast } from 'sonner';
@@ -6,7 +6,8 @@ import { useState } from 'react';
 
 interface Transaction {
   id: string;
-  merchant: string;
+  merchant?: string;
+  merchantName?: string;
   amount: number;
   date: string;
   category: string;
@@ -17,6 +18,8 @@ interface Transaction {
   description?: string;
   type: 'debit' | 'credit';
   time?: string;
+  user?: string;
+  location?: string;
 }
 
 interface TransactionDrawerProps {
@@ -50,13 +53,13 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-100 text-green-700 border-green-200';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'failed':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-100 text-red-700 border-red-200';
       default:
-        return 'bg-muted text-muted-foreground';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -112,207 +115,216 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-full sm:w-[480px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out ${
+        className={`fixed right-0 top-0 h-full w-full sm:w-[500px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="h-full flex flex-col">
-          {/* Header */}
-          <div className="border-b border-border p-6 pb-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base" style={{ color: '#001A72' }}>Transaction Details</h2>
-              <button
+        {/* Simple Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-white z-10">
+            <h2 className="text-base font-medium text-[#001A72]">Transaction Details</h2>
+            <button
                 onClick={onClose}
                 className="w-8 h-8 rounded-full hover:bg-muted/50 flex items-center justify-center transition-colors"
-              >
+            >
                 <X className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </div>
+            </button>
+        </div>
 
-            {/* Merchant Header with Icon */}
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 border border-accent/20 flex items-center justify-center text-2xl shrink-0">
-                {getCategoryIcon(transaction.category)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg mb-0.5" style={{ color: '#001A72' }}>{transaction.merchant}</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{transaction.category}</span>
-                  <span className="text-xs text-muted-foreground">•</span>
-                  <Badge className={`${getStatusColor(transaction.status)} border-0 text-xs`}>
-                    {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
-                  </Badge>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
+            <div className="space-y-6">
+                
+                {/* 1. Main Transaction Card */}
+                <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+                    {/* Card Header */}
+                    <div className="p-6 pb-4 border-b border-border/50 bg-gray-50/50">
+                        <div className="flex items-center justify-between gap-3">
+                            <h3 className="font-semibold text-[#001A72] text-lg leading-tight">{transaction.merchantName || transaction.merchant || 'Unknown Merchant'}</h3>
+                            <Badge variant="outline" className={`${getStatusColor(transaction.status)} font-normal shrink-0`}>
+                                {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                            </Badge>
+                        </div>
+                    </div>
+
+                    {/* Card Body: Amount */}
+                    <div className="p-6 py-8 flex flex-col items-center justify-center border-b border-border/50 bg-white">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Total Amount</p>
+                        <span
+                            className="text-4xl font-semibold tracking-tight"
+                            style={{ color: transaction.type === 'credit' ? '#10B981' : '#001A72' }}
+                        >
+                            {transaction.type === 'credit' ? '+' : ''}{formatAmount(transaction.amount)}
+                        </span>
+                    </div>
+
+                    {/* Card Details Grid */}
+                    <div className="p-4 bg-white">
+                        <div className="bg-gray-50 rounded-xl p-4 space-y-4">
+                             {/* Row 1: Date & Time */}
+                            <div className="flex items-center justify-between text-sm border-b border-dashed border-border/60 pb-3">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Calendar className="h-4 w-4" />
+                                    <span>Date & Time</span>
+                                </div>
+                                <span className="font-medium text-[#001A72]">{formatDateTime(transaction.date, transaction.time)}</span>
+                            </div>
+
+                             {/* Row 2: Category */}
+                             <div className="flex items-center justify-between text-sm border-b border-dashed border-border/60 pb-3">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Tag className="h-4 w-4" />
+                                    <span>Category</span>
+                                </div>
+                                <span className="font-medium text-[#001A72]">{transaction.category}</span>
+                            </div>
+
+                             {/* Row 3: Payment Method */}
+                             <div className="flex items-center justify-between text-sm border-b border-dashed border-border/60 pb-3">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <CreditCard className="h-4 w-4" />
+                                    <span>Payment Method</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <span className="font-medium text-[#001A72]">{transaction.paymentMethod}</span>
+                                    {transaction.cardUsed && <span className="text-muted-foreground text-xs">• {transaction.cardUsed}</span>}
+                                </div>
+                            </div>
+
+                             {/* Row 3: User (Who) */}
+                             <div className="flex items-center justify-between text-sm border-b border-dashed border-border/60 pb-3">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <User className="h-4 w-4" />
+                                    <span>Made by</span>
+                                </div>
+                                <span className="font-medium text-[#001A72]">{transaction.user || 'Unknown User'}</span>
+                            </div>
+
+                             {/* Row 4: Location */}
+                             <div className="flex items-center justify-between text-sm border-b border-dashed border-border/60 pb-3">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <MapPin className="h-4 w-4" />
+                                    <span>Location</span>
+                                </div>
+                                <span className="font-medium text-[#001A72]">{transaction.location || 'Online / Unknown'}</span>
+                            </div>
+
+                            {/* Row 5: Transaction ID */}
+                            <div className="flex items-center justify-between text-sm pt-1">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <FileText className="h-4 w-4" />
+                                    <span>Transaction ID</span>
+                                </div>
+                                <span className="font-mono text-xs text-[#001A72] bg-white border border-border px-2 py-0.5 rounded">{transaction.id}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Amount - Large and Clear */}
-            <div className="bg-gradient-to-br from-muted/30 to-muted/10 rounded-xl p-4 border border-border/50">
-              <div className="flex items-baseline gap-2">
-                <span
-                  className="text-2xl tracking-tight"
-                  style={{ color: transaction.type === 'credit' ? '#10B981' : '#001A72' }}
+                {/* Tags Section */}
+                {transaction.tags && transaction.tags.length > 0 && (
+                <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3 px-1">Tags</p>
+                    <div className="flex flex-wrap gap-2">
+                    {transaction.tags.map((tag, index) => (
+                        <Badge
+                        key={index}
+                        className="bg-white text-foreground border border-border hover:border-[#0033A0] transition-colors"
+                        >
+                        {tag}
+                        </Badge>
+                    ))}
+                    </div>
+                </div>
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-border" />
+
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3 px-1">Actions</p>
+
+                <button
+                    onClick={handleAddNote}
+                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
                 >
-                  {transaction.type === 'credit' ? '+' : '-'}{formatAmount(transaction.amount)}
-                </span>
-              </div>
+                    <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
+                        <FileText className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                    </div>
+                    <div className="text-left">
+                        <p className="text-sm font-medium text-[#001A72]">Add Note</p>
+                        <p className="text-xs text-muted-foreground">Add a personal note to this transaction</p>
+                    </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                </button>
+
+                <button
+                    onClick={handleAttachReceipt}
+                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
+                >
+                    <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
+                        <Upload className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                    </div>
+                    <div className="text-left">
+                        <p className="text-sm font-medium text-[#001A72]">Attach Receipt</p>
+                        <p className="text-xs text-muted-foreground">Upload a PDF or image</p>
+                    </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                </button>
+
+                <button
+                    onClick={handleSplitInstalments}
+                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
+                >
+                    <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
+                        <CreditCard className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                    </div>
+                    <div className="text-left">
+                        <p className="text-sm font-medium text-[#001A72]">Split into Instalments</p>
+                        <p className="text-xs text-muted-foreground">Available for BNPL-eligible transactions</p>
+                    </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                </button>
+
+                <button
+                    onClick={() => toast.success("Connecting to support...")}
+                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
+                >
+                    <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
+                        <MessageSquare className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                    </div>
+                    <div className="text-left">
+                        <p className="text-sm font-medium text-[#001A72]">Chat with Support</p>
+                        <p className="text-xs text-muted-foreground">Get help with this transaction</p>
+                    </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                </button>
+
+                <button
+                    onClick={handleReportProblem}
+                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-red-200 hover:shadow-sm transition-all group"
+                >
+                    <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-red-50 flex items-center justify-center transition-colors">
+                        <AlertCircle className="h-5 w-5 text-muted-foreground group-hover:text-red-600 transition-colors" />
+                    </div>
+                    <div className="text-left">
+                        <p className="text-sm font-medium text-[#001A72] group-hover:text-red-700">Report a Problem</p>
+                        <p className="text-xs text-muted-foreground">Dispute this transaction</p>
+                    </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-red-600 transition-colors" />
+                </button>
+                </div>
             </div>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {/* Transaction Information */}
-            <div className="space-y-4">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Transaction Information</p>
-              
-              {/* Date & Time */}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Calendar className="h-5 w-5 text-accent" />
-                </div>
-                <div className="flex-1 pt-1">
-                  <p className="text-xs text-muted-foreground mb-1">Date & Time</p>
-                  <p className="text-sm" style={{ color: '#001A72' }}>
-                    {formatDateTime(transaction.date, transaction.time)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <CreditCard className="h-5 w-5 text-accent" />
-                </div>
-                <div className="flex-1 pt-1">
-                  <p className="text-xs text-muted-foreground mb-1">Payment Method</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm" style={{ color: '#001A72' }}>{transaction.paymentMethod}</p>
-                    {transaction.cardUsed && (
-                      <>
-                        <p className="text-xs text-muted-foreground">•••• {transaction.cardUsed}</p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Transaction ID */}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <FileText className="h-5 w-5 text-accent" />
-                </div>
-                <div className="flex-1 pt-1">
-                  <p className="text-xs text-muted-foreground mb-1">Transaction ID</p>
-                  <p className="text-sm font-mono" style={{ color: '#001A72' }}>{transaction.id}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Tags Section */}
-            {transaction.tags && transaction.tags.length > 0 && (
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Tags</p>
-                <div className="flex flex-wrap gap-2">
-                  {transaction.tags.map((tag, index) => (
-                    <Badge
-                      key={index}
-                      className="bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20 transition-colors"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Divider */}
-            <div className="border-t border-border" />
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">Actions</p>
-
-              <button
-                onClick={handleAddNote}
-                className="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:border-accent/50 hover:bg-accent/5 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-muted/50 group-hover:bg-accent/10 flex items-center justify-center transition-colors">
-                    <FileText className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm" style={{ color: '#001A72' }}>Add Note</p>
-                    <p className="text-xs text-muted-foreground">Add a personal note to this transaction</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-              </button>
-
-              <button
-                onClick={handleAttachReceipt}
-                className="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:border-accent/50 hover:bg-accent/5 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-muted/50 group-hover:bg-accent/10 flex items-center justify-center transition-colors">
-                    <Upload className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm" style={{ color: '#001A72' }}>Attach Receipt</p>
-                    <p className="text-xs text-muted-foreground">Upload a PDF or image</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-              </button>
-
-              <button
-                onClick={handleSplitInstalments}
-                className="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:border-accent/50 hover:bg-accent/5 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-muted/50 group-hover:bg-accent/10 flex items-center justify-center transition-colors">
-                    <CreditCard className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm" style={{ color: '#001A72' }}>Split into Instalments</p>
-                    <p className="text-xs text-muted-foreground">Available for BNPL-eligible transactions</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-              </button>
-
-              <button
-                onClick={() => toast.success("Connecting to support...")}
-                className="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:border-accent/50 hover:bg-accent/5 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-muted/50 group-hover:bg-accent/10 flex items-center justify-center transition-colors">
-                    <MessageSquare className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm" style={{ color: '#001A72' }}>Chat with Support</p>
-                    <p className="text-xs text-muted-foreground">Get help with this transaction</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-              </button>
-
-              <button
-                onClick={handleReportProblem}
-                className="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:border-red-200 hover:bg-red-50 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-muted/50 group-hover:bg-red-100 flex items-center justify-center transition-colors">
-                    <AlertCircle className="h-5 w-5 text-muted-foreground group-hover:text-red-600 transition-colors" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm" style={{ color: '#001A72' }}>Report a Problem</p>
-                    <p className="text-xs text-muted-foreground">Dispute this transaction</p>
-                  </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-red-600 transition-colors" />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

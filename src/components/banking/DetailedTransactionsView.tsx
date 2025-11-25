@@ -25,6 +25,7 @@ import {
 import { Calendar } from "../ui/calendar";
 import { Transaction, Account } from './types';
 import { ExportDialog } from './ExportDialog';
+import { DateRangeDialog } from './DateRangeDialog';
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { FilterableTable } from './FilterableTable';
 
@@ -44,10 +45,13 @@ export function DetailedTransactionsView({
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set());
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isDateDialogOpen, setIsDateDialogOpen] = useState(false);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [userFilter, setUserFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [amountRange, setAmountRange] = useState<{min: string, max: string}>({ min: '', max: '' });
   const [dateRange, setDateRange] = useState<{from: Date | undefined, to: Date | undefined}>({ 
     from: startOfDay(subDays(new Date(), 30)), 
@@ -66,7 +70,8 @@ export function DetailedTransactionsView({
         tx.merchantName.toLowerCase().includes(query) ||
         tx.amount.toString().includes(query) ||
         tx.category.toLowerCase().includes(query) ||
-        (tx.reference || '').toLowerCase().includes(query);
+        (tx.reference || '').toLowerCase().includes(query) ||
+        (tx.user || '').toLowerCase().includes(query);
 
       if (!matchesSearch) return false;
 
@@ -75,6 +80,13 @@ export function DetailedTransactionsView({
 
       // Category Filter
       if (categoryFilter !== 'all' && tx.category !== categoryFilter) return false;
+      
+      // User Filter
+      if (userFilter !== 'all' && tx.user !== userFilter) return false;
+
+      // Type Filter (Income/Spend)
+      if (typeFilter === 'income' && tx.amount < 0) return false;
+      if (typeFilter === 'spend' && tx.amount >= 0) return false;
 
       // Amount Filter
       if (amountRange.min && Math.abs(tx.amount) < parseFloat(amountRange.min)) return false;
@@ -93,7 +105,7 @@ export function DetailedTransactionsView({
       if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [transactions, searchQuery, statusFilter, categoryFilter, amountRange, dateRange, sortConfig]);
+  }, [transactions, searchQuery, statusFilter, categoryFilter, userFilter, typeFilter, amountRange, dateRange, sortConfig]);
 
   // --- Handlers ---
 
@@ -107,12 +119,15 @@ export function DetailedTransactionsView({
   const clearFilters = () => {
     setStatusFilter('all');
     setCategoryFilter('all');
+    setUserFilter('all');
+    setTypeFilter('all');
     setAmountRange({ min: '', max: '' });
     setDateRange({ from: undefined, to: undefined });
     setSearchQuery('');
   };
 
   const uniqueCategories = Array.from(new Set(transactions.map(tx => tx.category)));
+  const uniqueUsers = Array.from(new Set(transactions.map(tx => tx.user).filter(Boolean))) as string[];
 
   // --- Table Config ---
   const columns = [
@@ -188,7 +203,7 @@ export function DetailedTransactionsView({
               placeholder="Search by merchant, amount, category or reference..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-gray-50 border-border focus:bg-white transition-colors h-9 text-sm"
+              className="pl-9 bg-gray-50 border-border focus:bg-white transition-colors h-9 py-2 text-sm"
             />
           </div>
 
@@ -197,12 +212,12 @@ export function DetailedTransactionsView({
             <Button 
               variant={isFilterPanelOpen ? "secondary" : "outline"} 
               size="sm"
-              className={`gap-2 h-9 ${isFilterPanelOpen ? 'bg-accent/10 text-[#0033A0] border-accent/20' : ''}`}
+              className={`gap-2 h-9 py-2 ${isFilterPanelOpen ? 'bg-accent/10 text-[#0033A0] border-accent/20' : ''}`}
               onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
             >
               <Filter className="h-3.5 w-3.5" />
               Filters
-              {(statusFilter !== 'all' || categoryFilter !== 'all' || amountRange.min || dateRange.from) && (
+              {(statusFilter !== 'all' || categoryFilter !== 'all' || userFilter !== 'all' || typeFilter !== 'all' || amountRange.min || dateRange.from) && (
                 <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 flex items-center justify-center bg-[#0033A0] text-white text-[9px]">
                   !
                 </Badge>
@@ -213,7 +228,7 @@ export function DetailedTransactionsView({
             <Button 
               variant="outline"
               size="sm" 
-              className="gap-2 h-9 text-[#0033A0] border-border hover:bg-blue-50"
+              className="gap-2 h-9 py-2 text-[#0033A0] border-border hover:bg-blue-50"
               onClick={() => setIsExportDialogOpen(true)}
             >
               <Download className="h-3.5 w-3.5" />
@@ -226,45 +241,26 @@ export function DetailedTransactionsView({
         {isFilterPanelOpen && (
           <div className="pt-3 border-t border-border grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 animate-in slide-in-from-top-2 duration-200">
             
-            {/* Date Filter */}
+            {/* Type Filter (Income/Spend) */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date Range</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal h-9 text-sm px-3">
-                    <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50 shrink-0" />
-                    <span className="truncate">
-                      {dateRange.from ? (
-                        dateRange.to ? (
-                          <>
-                            {format(dateRange.from, "LLL dd, y")} -{" "}
-                            {format(dateRange.to, "LLL dd, y")}
-                          </>
-                        ) : (
-                          format(dateRange.from, "LLL dd, y")
-                        )
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    selected={dateRange as any} 
-                    onSelect={(range: any) => setDateRange(range || { from: undefined, to: undefined })}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Type</label>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="income">Income (In)</SelectItem>
+                  <SelectItem value="spend">Spend (Out)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Category Filter */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Category</label>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full h-9 text-sm px-3">
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -280,7 +276,7 @@ export function DetailedTransactionsView({
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Status</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full h-9 text-sm px-3">
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -292,13 +288,55 @@ export function DetailedTransactionsView({
               </Select>
             </div>
 
+            {/* Team Member Filter */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Team Member</label>
+              <Select value={userFilter} onValueChange={setUserFilter}>
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
+                  <SelectValue placeholder="All Members" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Members</SelectItem>
+                  {uniqueUsers.map(user => (
+                    <SelectItem key={user} value={user}>{user}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Filter */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date Range</label>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-left font-normal h-9 py-2 text-sm px-3 bg-white hover:bg-white hover:text-foreground shadow-sm border-input rounded-md"
+                onClick={() => setIsDateDialogOpen(true)}
+              >
+                <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50 shrink-0" />
+                <span className="truncate">
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </span>
+              </Button>
+            </div>
+
              {/* Amount Filter */}
              <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Amount Range</label>
               <div className="flex items-center gap-2">
                 <Input 
                   placeholder="Min" 
-                  className="h-9 text-sm px-3" 
+                  className="h-9 py-2 text-sm px-3" 
                   value={amountRange.min}
                   onChange={(e) => setAmountRange(prev => ({ ...prev, min: e.target.value }))}
                   type="number"
@@ -306,7 +344,7 @@ export function DetailedTransactionsView({
                 <span className="text-muted-foreground">-</span>
                 <Input 
                   placeholder="Max" 
-                  className="h-9 text-sm px-3"
+                  className="h-9 py-2 text-sm px-3"
                   value={amountRange.max}
                   onChange={(e) => setAmountRange(prev => ({ ...prev, max: e.target.value }))}
                   type="number" 
@@ -354,6 +392,13 @@ export function DetailedTransactionsView({
         isOpen={isExportDialogOpen} 
         onClose={() => setIsExportDialogOpen(false)} 
         count={selectedRowIds.size > 0 ? selectedRowIds.size : filteredTransactions.length}
+      />
+      
+      <DateRangeDialog 
+        isOpen={isDateDialogOpen}
+        onClose={() => setIsDateDialogOpen(false)}
+        dateRange={dateRange}
+        onApply={(range) => setDateRange(range)}
       />
     </div>
   );
