@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { ArrowLeft, Shield, CheckCircle2, FileSignature, Activity, Edit3 } from 'lucide-react';
 
 interface DirectorDetailScreenProps {
@@ -6,6 +7,13 @@ interface DirectorDetailScreenProps {
 }
 
 export function DirectorDetailScreen({ onNavigate, businessData }: DirectorDetailScreenProps) {
+  const [notifications, setNotifications] = useState({
+    payments: true,
+    statements: false,
+    security: true,
+    marketing: false
+  });
+
   // Mock data for a director
   const director = {
     name: 'Sarah Mitchell',
@@ -185,6 +193,52 @@ export function DirectorDetailScreen({ onNavigate, businessData }: DirectorDetai
               </span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Notification Control */}
+      <div className="bg-white border border-border rounded-xl p-6 mt-6">
+        <h3 className="mb-6" style={{ color: '#001A72' }}>Notifications</h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+           <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <span className="text-sm text-gray-700">Payment Approvals</span>
+              <div 
+                onClick={() => setNotifications(p => ({...p, payments: !p.payments}))}
+                className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.payments ? 'bg-accent' : 'bg-gray-300'}`}
+              >
+                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.payments ? 'translate-x-5' : ''}`} />
+              </div>
+           </label>
+
+           <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <span className="text-sm text-gray-700">Statements Ready</span>
+              <div 
+                onClick={() => setNotifications(p => ({...p, statements: !p.statements}))}
+                className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.statements ? 'bg-accent' : 'bg-gray-300'}`}
+              >
+                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.statements ? 'translate-x-5' : ''}`} />
+              </div>
+           </label>
+
+           <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <span className="text-sm text-gray-700">Security Alerts</span>
+              <div 
+                onClick={() => setNotifications(p => ({...p, security: !p.security}))}
+                className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.security ? 'bg-accent' : 'bg-gray-300'}`}
+              >
+                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.security ? 'translate-x-5' : ''}`} />
+              </div>
+           </label>
+
+           <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <span className="text-sm text-gray-700">Marketing</span>
+              <div 
+                onClick={() => setNotifications(p => ({...p, marketing: !p.marketing}))}
+                className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.marketing ? 'bg-accent' : 'bg-gray-300'}`}
+              >
+                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.marketing ? 'translate-x-5' : ''}`} />
+              </div>
+           </label>
         </div>
       </div>
 

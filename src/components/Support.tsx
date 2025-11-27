@@ -1,30 +1,38 @@
-import { useState } from 'react';
 import { SupportLanding } from './support/SupportLanding';
 import { ChatView } from './support/ChatView';
 import { ServiceRequests } from './support/ServiceRequests';
 import { ComplaintsDisputes } from './support/ComplaintsDisputes';
+import { FraudSecurity } from './support/FraudSecurity';
+import { Appointments } from './support/Appointments';
 
-type SupportSection = 'home' | 'chat' | 'messages' | 'requests' | 'complaints' | 'fraud' | 'appointments';
+export type SupportSection = 'home' | 'chat' | 'messages' | 'requests' | 'complaints' | 'fraud' | 'appointments';
 
-export function Support() {
-  const [activeSection, setActiveSection] = useState<SupportSection>('home');
+interface SupportProps {
+  activeSection: SupportSection;
+  onNavigate: (section: string) => void;
+}
 
-  const handleNavigate = (section: string) => {
-    setActiveSection(section as SupportSection);
-  };
-
+export function Support({ activeSection, onNavigate }: SupportProps) {
   if (activeSection === 'chat') {
-    return <ChatView onNavigate={handleNavigate} />;
+    return <ChatView onNavigate={onNavigate} />;
   }
 
   if (activeSection === 'requests') {
-    return <ServiceRequests onNavigate={handleNavigate} />;
+    return <ServiceRequests onNavigate={onNavigate} />;
   }
 
-  if (activeSection === 'complaints' || activeSection === 'fraud') {
-    return <ComplaintsDisputes onNavigate={handleNavigate} />;
+  if (activeSection === 'complaints') {
+    return <ComplaintsDisputes onNavigate={onNavigate} />;
+  }
+  
+  if (activeSection === 'fraud') {
+    return <FraudSecurity onNavigate={onNavigate} />;
+  }
+
+  if (activeSection === 'appointments') {
+    return <Appointments onNavigate={onNavigate} />;
   }
 
   // Default: Support Landing
-  return <SupportLanding onNavigate={handleNavigate} />;
+  return <SupportLanding onNavigate={onNavigate} />;
 }

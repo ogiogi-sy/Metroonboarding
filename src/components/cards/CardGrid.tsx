@@ -3,6 +3,7 @@ import { CardTile, CardData } from './CardTile';
 
 interface CardGridProps {
   onCardClick: (cardId: string) => void;
+  onFreezeToggle?: (card: CardData) => void;
   cards?: CardData[];
 }
 
@@ -21,17 +22,18 @@ const DEFAULT_CARDS: CardData[] = [
   // ... other cards
 ];
 
-export function CardGrid({ onCardClick, cards }: CardGridProps) {
+export function CardGrid({ onCardClick, cards, onFreezeToggle }: CardGridProps) {
   const displayCards = cards || DEFAULT_CARDS;
   
   return (
-    <div className="max-w-7xl mx-auto p-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {displayCards.map((card) => (
           <CardTile 
             key={card.id} 
             card={card} 
             onClick={() => onCardClick(card.id)} 
+            onFreezeToggle={onFreezeToggle}
           />
         ))}
       </div>

@@ -2,6 +2,8 @@ import { Button } from '../ui/button';
 import { ArrowRight, ArrowUpRight, ArrowDownLeft, Copy, Download, Share2, TrendingUp, Package, Shield, CreditCard, ChevronRight, AlertCircle, Sparkles, DollarSign, Plus, Send } from 'lucide-react';
 import { HelpWidget } from '../HelpWidget';
 import { toast } from 'sonner';
+import { NavigationSidebar } from '../NavigationSidebar';
+import { DashboardHeader } from '../DashboardHeader';
 
 interface DashboardScreenProps {
   onNavigate: (section: string) => void;
@@ -119,31 +121,46 @@ export function DashboardScreen({
   const allComplete = incompleteCategories.length === 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="mb-1">{companyName}</h1>
-              <p className="text-sm text-muted-foreground">
-                Business Current Account
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => onNavigate('home')}
-              size="sm"
-            >
-              Enhance Account
-            </Button>
-          </div>
-        </div>
-      </div>
+    <div className="flex min-h-screen bg-[#F5F6F8]">
+      <NavigationSidebar 
+        activeSection="dashboard"
+        onNavigate={onNavigate}
+        businessData={businessData}
+        selectedAccounts={selectedAccounts}
+        onAccountSelectionChange={onAccountSelectionChange}
+      />
+      
+      <div className="flex-1 lg:ml-64">
+        <DashboardHeader 
+          activeSection="dashboard"
+          onNavigate={onNavigate}
+          businessData={businessData}
+          selectedAccounts={selectedAccounts}
+          onAccountSelectionChange={onAccountSelectionChange}
+        />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Incomplete Setup Banner */}
-        {!allComplete && (
+        {/* Page Header */}
+        <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="mb-1" style={{ color: '#001A72' }}>{companyName}</h1>
+                <p className="text-sm text-muted-foreground">
+                  Business Current Account
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => onNavigate('home')}
+                size="sm"
+              >
+                Enhance Account
+              </Button>
+            </div>
+          </div>
+
+        <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-4">
+          {/* Incomplete Setup Banner */}
+          {!allComplete && (
           <div className="bg-gradient-to-r from-accent/10 via-accent/5 to-transparent border border-accent/20 rounded-xl p-6 mb-8">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
@@ -218,7 +235,7 @@ export function DashboardScreen({
             {/* Lending CTA Card */}
             <div
               onClick={() => onNavigate('lending')}
-              className="bg-gradient-to-br from-accent/5 to-primary/5 border-2 border-accent/20 rounded-xl p-6 cursor-pointer hover:border-accent hover:shadow-lg transition-all group"
+              className="bg-gradient-to-br from-accent/5 to-primary/5 border-2 border-accent/20 rounded-xl p-6 cursor-pointer hover:border-accent transition-all group"
             >
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
@@ -353,7 +370,7 @@ export function DashboardScreen({
                 <button
                   key={category.id}
                   onClick={() => onNavigate(category.id)}
-                  className="w-full bg-white border border-border rounded-xl p-4 text-left hover:border-accent hover:shadow-md transition-all group"
+                  className="w-full bg-white border border-border rounded-xl p-4 text-left hover:border-accent transition-all group"
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 ${category.color} rounded-full flex items-center justify-center flex-shrink-0`}>
@@ -390,6 +407,7 @@ export function DashboardScreen({
             </div>
           </div>
         </div>
+      </div>
       </div>
       
       {/* Help Widget */}

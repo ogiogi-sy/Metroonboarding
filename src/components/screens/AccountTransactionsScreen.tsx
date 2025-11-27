@@ -1,12 +1,28 @@
 import { useState, useEffect } from 'react';
 import { NavigationSidebar } from '../NavigationSidebar';
-import { MobileNav } from '../MobileNav';
+import { DashboardHeader } from '../DashboardHeader';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import { Slider } from '../ui/slider';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { 
   ArrowLeft, 
   Calendar, 
@@ -17,9 +33,11 @@ import {
   FileText,
   AlertCircle,
   Tag,
-  X
+  X,
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DisputeModal } from '../support/DisputeModal';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -57,6 +75,13 @@ interface Transaction {
   location?: string;
   tags?: ('subscription' | 'international' | 'atm' | 'recurring')[];
   isMoneyIn: boolean;
+  bnplEligible?: boolean;
+  bnplActive?: boolean;
+  bnplPlan?: {
+    months: number;
+    monthlyAmount: number;
+    nextPaymentDate: string;
+  };
 }
 
 const MOCK_TRANSACTIONS: Transaction[] = [
@@ -74,6 +99,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
     location: 'San Francisco, USA',
     tags: ['subscription', 'international', 'recurring'],
     isMoneyIn: false,
+    bnplEligible: true,
   },
   {
     id: 't2',
@@ -89,6 +115,7 @@ const MOCK_TRANSACTIONS: Transaction[] = [
     location: 'Dublin, Ireland',
     tags: ['recurring'],
     isMoneyIn: false,
+    bnplEligible: true,
   },
   {
     id: 't3',
@@ -298,17 +325,79 @@ export function AccountTransactionsScreen({
   onAccountSelectionChange
 }: AccountTransactionsScreenProps) {
   // UI states
+  const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedForExport, setSelectedForExport] = useState<string[]>([]);
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  
+  // BNPL States
+  const [showBNPLModal, setShowBNPLModal] = useState(false);
+  const [bnplPlanMonths, setBnplPlanMonths] = useState<'3' | '6'>('3');
+
+  // Statement Generator States
+  const [showStatementModal, setShowStatementModal] = useState(false);
+  const [statementPeriod, setStatementPeriod] = useState<'monthly' | 'quarterly' | 'custom'>('monthly');
+  const [statementMonth, setStatementMonth] = useState('november-2024');
+  const [statementQuarter, setStatementQuarter] = useState('q4-2024');
+  const [statementStartDate, setStatementStartDate] = useState('');
+  const [statementEndDate, setStatementEndDate] = useState('');
+  const [isGeneratingStatement, setIsGeneratingStatement] = useState(false);
+
   // Auto-select transaction if transactionId is provided
   useEffect(() => {
     if (transactionId) {
-      const transaction = MOCK_TRANSACTIONS.find(tx => tx.id === transactionId);
+      const transaction = transactions.find(tx => tx.id === transactionId);
       if (transaction) {
         setSelectedTransaction(transaction);
       }
     }
-  }, [transactionId]);
+  }, [transactionId, transactions]);
+
+  const handleReportProblem = () => {
+    setShowDisputeModal(true);
+  };
+
+  const handleOpenBNPL = () => {
+    setShowBNPLModal(true);
+  };
+
+  const handleConfirmBNPL = () => {
+    if (!selectedTransaction) return;
+
+    const months = parseInt(bnplPlanMonths);
+    const monthlyAmount = Math.abs(selectedTransaction.amount) / months;
+
+    const updatedTransaction: Transaction = {
+      ...selectedTransaction,
+      bnplEligible: false,
+      bnplActive: true,
+      bnplPlan: {
+        months,
+        monthlyAmount,
+        nextPaymentDate: '15 Aug 2025' // Mock date
+      }
+    };
+
+    // Update list
+    setTransactions(prev => prev.map(tx => tx.id === selectedTransaction.id ? updatedTransaction : tx));
+    
+    // Update selected
+    setSelectedTransaction(updatedTransaction);
+    
+    setShowBNPLModal(false);
+    toast.success('Your instalment plan has been set up');
+  };
+
+  const handleSubmitDispute = (data: any) => {
+    setShowDisputeModal(false);
+    toast.success('Dispute ticket raised', {
+      description: 'Ticket #DSP-1234 has been created',
+      action: {
+        label: 'View',
+        onClick: () => onNavigate('support', { section: 'fraud' })
+      }
+    });
+  };
 
   const toggleTransactionForExport = (id: string) => {
     setSelectedForExport(prev =>
@@ -326,6 +415,29 @@ export function AccountTransactionsScreen({
     toast.success(`Exporting ${selectedForExport.length} transaction(s)`);
   };
 
+  const handleGenerateStatement = () => {
+    setIsGeneratingStatement(true);
+    
+    // Simulate statement generation
+    setTimeout(() => {
+      setIsGeneratingStatement(false);
+      setShowStatementModal(false);
+      
+      let periodText = '';
+      if (statementPeriod === 'monthly') {
+        periodText = statementMonth.replace('-', ' ');
+      } else if (statementPeriod === 'quarterly') {
+        periodText = statementQuarter.replace('-', ' ');
+      } else {
+        periodText = `${statementStartDate} to ${statementEndDate}`;
+      }
+      
+      toast.success('Statement generated', {
+        description: `Your statement for ${periodText} is ready to download`
+      });
+    }, 2000);
+  };
+
   return (
     <div className="flex min-h-screen bg-[#F5F6F8]">
       <NavigationSidebar 
@@ -337,42 +449,40 @@ export function AccountTransactionsScreen({
       />
       
       <main className="flex-1 lg:ml-64">
-        {/* Header */}
-        <header className="bg-white border-b border-border sticky top-0 z-20">
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
+        <DashboardHeader 
+          activeSection="transactions"
+          onNavigate={onNavigate}
+          businessData={businessData}
+          selectedAccounts={selectedAccounts}
+          onAccountSelectionChange={onAccountSelectionChange}
+        />
+
+        {/* Page Header */}
+        <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <MobileNav 
-                  activeSection="accounts" 
-                  onNavigate={onNavigate}
-                  businessData={businessData}
-                  selectedAccounts={selectedAccounts}
-                  onAccountSelectionChange={onAccountSelectionChange}
-                />
-                <div className="flex flex-col gap-1">
-                  <Breadcrumb>
-                    <BreadcrumbList>
-                      <BreadcrumbItem>
-                        <BreadcrumbLink 
-                          onClick={() => onNavigate('accounts')}
-                          className="cursor-pointer"
-                        >
-                          Accounts
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                      <BreadcrumbSeparator />
-                      <BreadcrumbItem>
-                        <BreadcrumbPage>{MOCK_ACCOUNT.name}</BreadcrumbPage>
-                      </BreadcrumbItem>
-                    </BreadcrumbList>
-                  </Breadcrumb>
-                  
-                  <div>
-                    <h1 className="text-2xl font-semibold" style={{ color: '#001A72' }}>All Transactions</h1>
-                    <p className="text-sm text-muted-foreground">
-                      {MOCK_ACCOUNT.sortCode} • {MOCK_ACCOUNT.accountNumber}
-                    </p>
-                  </div>
+              <div className="flex flex-col gap-1">
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem>
+                      <BreadcrumbLink 
+                        onClick={() => onNavigate('accounts')}
+                        className="cursor-pointer"
+                      >
+                        Accounts
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>{MOCK_ACCOUNT.name}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+                
+                <div>
+                  <h1 className="text-2xl font-semibold" style={{ color: '#001A72' }}>All Transactions</h1>
+                  <p className="text-sm text-muted-foreground">
+                    {MOCK_ACCOUNT.sortCode} • {MOCK_ACCOUNT.accountNumber}
+                  </p>
                 </div>
               </div>
 
@@ -380,17 +490,19 @@ export function AccountTransactionsScreen({
                 <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                   {MOCK_ACCOUNT.status}
                 </Badge>
-                <button className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center">
-                  <span className="text-sm">
-                    {businessData.companyName ? businessData.companyName.charAt(0) : 'B'}
-                  </span>
-                </button>
+                <Button 
+                  variant="outline"
+                  className="gap-2 border-[#0033A0] text-[#0033A0] hover:bg-blue-50"
+                  onClick={() => setShowStatementModal(true)}
+                >
+                  <FileText className="h-4 w-4" />
+                  Generate Statement
+                </Button>
               </div>
             </div>
           </div>
-        </header>
 
-        <div className="flex h-[calc(100vh-116px)]">
+        <div className="flex h-[calc(100vh-180px)]">
           {/* Center Content - Transaction List */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Table Header Actions */}
@@ -423,10 +535,10 @@ export function AccountTransactionsScreen({
                   <tr>
                     <th className="w-12 px-6 py-3">
                       <Checkbox
-                        checked={selectedForExport.length === MOCK_TRANSACTIONS.length && MOCK_TRANSACTIONS.length > 0}
+                        checked={selectedForExport.length === transactions.length && transactions.length > 0}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            setSelectedForExport(MOCK_TRANSACTIONS.map(tx => tx.id));
+                            setSelectedForExport(transactions.map(tx => tx.id));
                           } else {
                             setSelectedForExport([]);
                           }
@@ -442,7 +554,7 @@ export function AccountTransactionsScreen({
                   </tr>
                 </thead>
                 <tbody>
-                  {MOCK_TRANSACTIONS.map((tx) => (
+                  {transactions.map((tx) => (
                     <tr
                       key={tx.id}
                       onClick={() => setSelectedTransaction(tx)}
@@ -462,7 +574,20 @@ export function AccountTransactionsScreen({
                           <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
                             {tx.merchantName.charAt(0)}
                           </div>
-                          <span>{tx.merchantName}</span>
+                          <div className="flex flex-col">
+                            <span>{tx.merchantName}</span>
+                            {tx.bnplEligible && !tx.bnplActive && (
+                                <span className="text-[10px] font-medium text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded w-fit mt-0.5">
+                                    Eligible for instalments
+                                </span>
+                            )}
+                            {tx.bnplActive && (
+                                <span className="text-[10px] font-medium text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded w-fit mt-0.5 flex items-center gap-1">
+                                    <CreditCard className="w-2.5 h-2.5" />
+                                    In instalments
+                                </span>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -488,7 +613,7 @@ export function AccountTransactionsScreen({
                 </tbody>
               </table>
 
-              {MOCK_TRANSACTIONS.length === 0 && (
+              {transactions.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <Filter className="h-12 w-12 text-muted-foreground/30 mb-4" />
                   <h3 className="text-lg mb-2" style={{ color: '#001A72' }}>No transactions found</h3>
@@ -502,7 +627,7 @@ export function AccountTransactionsScreen({
 
           {/* Right Panel - Transaction Detail */}
           {selectedTransaction && (
-            <aside className="w-96 bg-white border-l border-border overflow-y-auto shadow-xl z-10">
+            <aside className="w-96 bg-white border-l border-border overflow-y-auto z-10">
               <div className="p-6">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-6">
@@ -514,9 +639,16 @@ export function AccountTransactionsScreen({
                       <h3 className="text-lg" style={{ color: '#001A72' }}>
                         {selectedTransaction.merchantName}
                       </h3>
-                      <Badge variant="outline" className="font-normal mt-1">
-                        {selectedTransaction.category}
-                      </Badge>
+                      <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="font-normal">
+                            {selectedTransaction.category}
+                          </Badge>
+                          {selectedTransaction.bnplActive && (
+                            <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-50 font-medium">
+                                In instalments
+                            </Badge>
+                          )}
+                      </div>
                     </div>
                   </div>
                   <Button
@@ -536,6 +668,24 @@ export function AccountTransactionsScreen({
                     {selectedTransaction.isMoneyIn ? '+' : '-'}£{Math.abs(selectedTransaction.amount).toFixed(2)}
                   </p>
                 </div>
+
+                {/* BNPL Active Summary */}
+                {selectedTransaction.bnplActive && selectedTransaction.bnplPlan && (
+                    <div className="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-xl space-y-3">
+                        <div className="flex items-center gap-2 text-indigo-900 font-medium">
+                            <CheckCircle2 className="w-4 h-4 text-indigo-700" />
+                            <h3>Active Instalment Plan</h3>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-sm text-indigo-800">
+                                {selectedTransaction.bnplPlan.months} monthly payments of £{selectedTransaction.bnplPlan.monthlyAmount.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-indigo-600">
+                                Next payment: {selectedTransaction.bnplPlan.nextPaymentDate}
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Map Snippet (Static) */}
                 {selectedTransaction.location && (
@@ -629,20 +779,20 @@ export function AccountTransactionsScreen({
                   <Button 
                     variant="outline" 
                     className="w-full justify-start rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => toast.info('Dispute modal would open here')}
+                    onClick={handleReportProblem}
                   >
                     <AlertCircle className="h-4 w-4 mr-2" />
                     Report a problem
                   </Button>
 
-                  {selectedTransaction.amount < 0 && Math.abs(selectedTransaction.amount) > 500 && (
+                  {selectedTransaction.amount < 0 && Math.abs(selectedTransaction.amount) > 100 && !selectedTransaction.bnplActive && (
                     <Button 
                       variant="outline" 
-                      className="w-full justify-start rounded-full"
-                      onClick={() => toast.info('BNPL split functionality coming soon')}
+                      className="w-full justify-start rounded-full text-purple-700 hover:text-purple-800 hover:bg-purple-50 border-purple-200"
+                      onClick={handleOpenBNPL}
                     >
                       <Calendar className="h-4 w-4 mr-2" />
-                      Split into instalments
+                      Pay in instalments
                     </Button>
                   )}
                 </div>
@@ -651,6 +801,207 @@ export function AccountTransactionsScreen({
           )}
         </div>
       </main>
+
+      {/* BNPL Modal */}
+      <Dialog open={showBNPLModal} onOpenChange={setShowBNPLModal}>
+        <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+                <DialogTitle>Split this payment into instalments</DialogTitle>
+                <DialogDescription>
+                    Spread the cost of this purchase over several months.
+                </DialogDescription>
+            </DialogHeader>
+
+            {selectedTransaction && (
+                <div className="py-4 space-y-6">
+                    {/* Transaction Summary */}
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Merchant</span>
+                            <span className="font-medium text-[#001A72]">{selectedTransaction.merchantName}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Amount</span>
+                            <span className="font-medium text-[#001A72]">£{Math.abs(selectedTransaction.amount).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Card ending</span>
+                            <span className="font-medium text-[#001A72]">{selectedTransaction.cardLast4 || '4532'}</span>
+                        </div>
+                    </div>
+
+                    {/* Plan Selection */}
+                    <div className="space-y-3">
+                        <Label>Choose a plan</Label>
+                        <RadioGroup value={bnplPlanMonths} onValueChange={(val: any) => setBnplPlanMonths(val)}>
+                            <div className={`flex items-center space-x-3 border p-3 rounded-lg cursor-pointer transition-all ${bnplPlanMonths === '3' ? 'border-[#0033A0] bg-blue-50/30' : 'border-gray-200'}`}>
+                                <RadioGroupItem value="3" id="plan-3" />
+                                <Label htmlFor="plan-3" className="flex-1 cursor-pointer">
+                                    <span className="font-medium block">3 monthly payments</span>
+                                    <span className="text-xs text-gray-500">3 × £{(Math.abs(selectedTransaction.amount) / 3).toFixed(2)} per month</span>
+                                </Label>
+                            </div>
+                            <div className={`flex items-center space-x-3 border p-3 rounded-lg cursor-pointer transition-all ${bnplPlanMonths === '6' ? 'border-[#0033A0] bg-blue-50/30' : 'border-gray-200'}`}>
+                                <RadioGroupItem value="6" id="plan-6" />
+                                <Label htmlFor="plan-6" className="flex-1 cursor-pointer">
+                                    <span className="font-medium block">6 monthly payments</span>
+                                    <span className="text-xs text-gray-500">6 × £{(Math.abs(selectedTransaction.amount) / 6).toFixed(2)} per month</span>
+                                </Label>
+                            </div>
+                        </RadioGroup>
+                    </div>
+                </div>
+            )}
+
+            <DialogFooter>
+                <Button variant="secondary" onClick={() => setShowBNPLModal(false)}>Cancel</Button>
+                <Button onClick={handleConfirmBNPL} className="bg-[#0033A0] hover:bg-[#002b87] text-white">
+                    Confirm instalment plan
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Raise Dispute Modal */}
+      <DisputeModal
+        isOpen={showDisputeModal}
+        onClose={() => setShowDisputeModal(false)}
+        initialTransaction={selectedTransaction}
+        availableTransactions={MOCK_TRANSACTIONS}
+        onSubmit={handleSubmitDispute}
+      />
+
+      {/* Statement Generator Modal */}
+      <Dialog open={showStatementModal} onOpenChange={setShowStatementModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Generate Statement</DialogTitle>
+            <DialogDescription>
+              Select a period to generate your account statement
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Period Type Selection */}
+            <div className="space-y-3">
+              <Label>Statement Period</Label>
+              <RadioGroup value={statementPeriod} onValueChange={(val: any) => setStatementPeriod(val)}>
+                <div className={`flex items-center space-x-3 border p-3 rounded-lg cursor-pointer transition-all ${statementPeriod === 'monthly' ? 'border-[#0033A0] bg-blue-50/30' : 'border-gray-200'}`}>
+                  <RadioGroupItem value="monthly" id="period-monthly" />
+                  <Label htmlFor="period-monthly" className="flex-1 cursor-pointer">
+                    <span className="font-medium block">Monthly</span>
+                    <span className="text-xs text-gray-500">Get statement for a specific month</span>
+                  </Label>
+                </div>
+                <div className={`flex items-center space-x-3 border p-3 rounded-lg cursor-pointer transition-all ${statementPeriod === 'quarterly' ? 'border-[#0033A0] bg-blue-50/30' : 'border-gray-200'}`}>
+                  <RadioGroupItem value="quarterly" id="period-quarterly" />
+                  <Label htmlFor="period-quarterly" className="flex-1 cursor-pointer">
+                    <span className="font-medium block">Quarterly</span>
+                    <span className="text-xs text-gray-500">Get statement for a quarter</span>
+                  </Label>
+                </div>
+                <div className={`flex items-center space-x-3 border p-3 rounded-lg cursor-pointer transition-all ${statementPeriod === 'custom' ? 'border-[#0033A0] bg-blue-50/30' : 'border-gray-200'}`}>
+                  <RadioGroupItem value="custom" id="period-custom" />
+                  <Label htmlFor="period-custom" className="flex-1 cursor-pointer">
+                    <span className="font-medium block">Custom Range</span>
+                    <span className="text-xs text-gray-500">Choose your own date range</span>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Monthly Selection */}
+            {statementPeriod === 'monthly' && (
+              <div className="space-y-2">
+                <Label>Select Month</Label>
+                <Select value={statementMonth} onValueChange={setStatementMonth}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="november-2024">November 2024</SelectItem>
+                    <SelectItem value="october-2024">October 2024</SelectItem>
+                    <SelectItem value="september-2024">September 2024</SelectItem>
+                    <SelectItem value="august-2024">August 2024</SelectItem>
+                    <SelectItem value="july-2024">July 2024</SelectItem>
+                    <SelectItem value="june-2024">June 2024</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Quarterly Selection */}
+            {statementPeriod === 'quarterly' && (
+              <div className="space-y-2">
+                <Label>Select Quarter</Label>
+                <Select value={statementQuarter} onValueChange={setStatementQuarter}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="q4-2024">Q4 2024 (Oct - Dec)</SelectItem>
+                    <SelectItem value="q3-2024">Q3 2024 (Jul - Sep)</SelectItem>
+                    <SelectItem value="q2-2024">Q2 2024 (Apr - Jun)</SelectItem>
+                    <SelectItem value="q1-2024">Q1 2024 (Jan - Mar)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Custom Range Selection */}
+            {statementPeriod === 'custom' && (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Start Date</Label>
+                  <Input 
+                    type="date" 
+                    value={statementStartDate}
+                    onChange={(e) => setStatementStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>End Date</Label>
+                  <Input 
+                    type="date" 
+                    value={statementEndDate}
+                    onChange={(e) => setStatementEndDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Statement Info */}
+            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm">
+              <p className="text-blue-900">
+                <strong>Statement includes:</strong> All transactions, opening & closing balance, and account summary
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setShowStatementModal(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleGenerateStatement}
+              disabled={isGeneratingStatement || (statementPeriod === 'custom' && (!statementStartDate || !statementEndDate))}
+              className="bg-[#0033A0] hover:bg-[#002b87] text-white"
+            >
+              {isGeneratingStatement ? (
+                <>
+                  <Download className="h-4 w-4 mr-2 animate-pulse" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Generate & Download
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

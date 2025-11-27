@@ -116,7 +116,7 @@ export function SwitchCompleteScreen({
           Make the most of your Metro account
         </h3>
         <div className="space-y-3">
-          <button className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-muted/30 transition-colors border border-border">
+          <button className="w-full flex items-center justify-between p-4 rounded-full hover:bg-muted/30 transition-colors border border-border">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-accent" />
@@ -133,7 +133,7 @@ export function SwitchCompleteScreen({
             <ArrowRight className="w-5 h-5 text-muted-foreground" />
           </button>
 
-          <button className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-muted/30 transition-colors border border-border">
+          <button className="w-full flex items-center justify-between p-4 rounded-full hover:bg-muted/30 transition-colors border border-border">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                 <Globe className="w-5 h-5 text-primary" />
@@ -150,7 +150,7 @@ export function SwitchCompleteScreen({
             <ArrowRight className="w-5 h-5 text-muted-foreground" />
           </button>
 
-          <button className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-muted/30 transition-colors border border-border">
+          <button className="w-full flex items-center justify-between p-4 rounded-full hover:bg-muted/30 transition-colors border border-border">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#16A34A]/10 rounded-full flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-[#16A34A]" />

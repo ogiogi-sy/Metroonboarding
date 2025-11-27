@@ -1,5 +1,5 @@
 import { NavigationSidebar } from '../NavigationSidebar';
-import { MobileNav } from '../MobileNav';
+import { DashboardHeader } from '../DashboardHeader';
 import { BarChart3 } from 'lucide-react';
 
 interface InsightsScreenProps {
@@ -27,15 +27,16 @@ export function InsightsScreen({
       
       {/* Main Content */}
       <main className="flex-1 lg:ml-64">
+        <DashboardHeader 
+          activeSection="dashboard"
+          onNavigate={onNavigate}
+          businessData={businessData}
+          selectedAccounts={selectedAccounts}
+          onAccountSelectionChange={onAccountSelectionChange}
+        />
+
         <div className="max-w-7xl mx-auto p-6 lg:p-8">
-          <div className="mb-8 flex items-start gap-4">
-            <MobileNav 
-              activeSection="dashboard" 
-              onNavigate={onNavigate}
-              businessData={businessData}
-              selectedAccounts={selectedAccounts}
-              onAccountSelectionChange={onAccountSelectionChange}
-            />
+          <div className="mb-8">
             <div>
               <h1 className="mb-2">Insights</h1>
               <p className="text-muted-foreground">

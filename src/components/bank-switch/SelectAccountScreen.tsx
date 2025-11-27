@@ -45,9 +45,9 @@ export function SelectAccountScreen({ accounts, onSelectAccount, onBack }: Selec
           <button
             key={account.id}
             onClick={() => setSelectedAccountId(account.id)}
-            className={`w-full text-left bg-white border-2 rounded-2xl p-6 transition-all ${
+            className={`w-full text-left bg-white border-2 rounded-full p-6 transition-all ${
               selectedAccountId === account.id
-                ? 'border-accent shadow-lg'
+                ? 'border-accent bg-accent/5'
                 : 'border-border hover:border-accent/50'
             }`}
           >

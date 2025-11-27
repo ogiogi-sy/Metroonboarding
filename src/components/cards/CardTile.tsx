@@ -13,112 +13,136 @@ export interface CardData {
   cardholderName: string;
   expiryDate: string;
   brand: 'visa' | 'mastercard';
+  monthlySpend: number;
 }
 
 interface CardTileProps {
   card: CardData;
   onClick: () => void;
+  onFreezeToggle?: (card: CardData) => void;
 }
 
-export function CardTile({ card, onClick }: CardTileProps) {
-  const getStatusStyles = (status: CardData['status']) => {
+export function CardTile({ card, onClick, onFreezeToggle }: CardTileProps) {
+  const getStatusBadgeStyles = (status: CardData['status']) => {
     switch (status) {
       case 'active':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'bg-[#10b981] text-white';
       case 'frozen':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-[#3b82f6] text-white';
       case 'blocked':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-red-600 text-white';
       case 'pending':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
+        return 'bg-amber-500 text-white';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-gray-500 text-white';
     }
   };
 
   const getCardGradient = (type: CardData['type']) => {
+    // Use a consistent deep blue gradient that matches the reference
     if (type === 'physical') {
-      return 'from-[#0033A0] to-[#002b87]';
+      return 'from-[#1a47a3] to-[#103280]';
     }
-    return 'from-[#667eea] to-[#764ba2]';
+    // Slightly lighter/different for virtual to distinguish
+    return 'from-[#2563eb] to-[#1e40af]';
   };
 
   return (
     <div 
-      className="bg-white border border-gray-200 rounded-lg p-6 hover:border-[#0033A0] transition-all duration-200 cursor-pointer group flex flex-col h-full"
+      className="group flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-200 cursor-pointer h-full hover:border-[#0033A0]"
       onClick={onClick}
     >
-      {/* Visual Card */}
+      {/* Top Section: Visual Card Representation */}
       <div className={cn(
-        "w-full h-48 rounded-lg p-6 text-white bg-gradient-to-br relative shadow-sm mb-4",
+        "relative h-48 p-6 flex flex-col justify-between bg-gradient-to-br",
         getCardGradient(card.type)
       )}>
-        <div className="flex justify-between items-start mb-8">
-          <span className="text-[10px] uppercase tracking-wider opacity-80 font-medium">
-            {card.entityName}
-          </span>
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col">
+            <span className="text-[11px] uppercase tracking-widest font-normal text-white/90 mb-0.5">
+              {card.entityName}
+            </span>
+            <span className="text-[11px] uppercase tracking-wider font-normal text-white/70">
+              {card.type} Card
+            </span>
+          </div>
+          
           <span className={cn(
-            "text-[10px] px-2 py-1 rounded border uppercase font-medium tracking-wide bg-white/90 backdrop-blur-sm",
-            getStatusStyles(card.status).replace('bg-', 'text-').split(' ')[1] // Hack to get color for text, keep bg white for contrast inside colored card? No, spec says specific colors.
-            // Wait, spec for status pill inside card visual says: 
-            // Active: Green-50 bg, Green-700 text... 
-            // But inside a dark gradient card? 
-            // Let's follow the spec literally.
+            "px-3 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider",
+            getStatusBadgeStyles(card.status)
           )}>
-           {/* Actually, inside the colorful card, these light backgrounds might look odd. 
-               But the spec says: "Right: Status pill... Active: Green-50 bg..."
-               Let's stick to spec. 
-           */}
-           <span className={cn(
-             "px-2 py-1 rounded border text-[10px] font-medium inline-block",
-             getStatusStyles(card.status)
-           )}>
-             {card.status}
-           </span>
+            {card.status}
           </span>
         </div>
 
-        <div className="mt-auto space-y-6">
-           <div className="space-y-1">
-              <p className="text-[11px] opacity-80 uppercase tracking-wide">{card.type} Card</p>
-              <p className="text-xl font-mono tracking-wider">•••• •••• •••• {card.last4}</p>
+        <div className="space-y-6">
+           <div className="flex items-center gap-2">
+             <div className="flex gap-1">
+               {[1,2,3,4].map(i => (
+                 <div key={`g1-${i}`} className="w-1.5 h-1.5 rounded-full bg-white/60"></div>
+               ))}
+             </div>
+             <div className="flex gap-1 mx-2">
+               {[1,2,3,4].map(i => (
+                 <div key={`g2-${i}`} className="w-1.5 h-1.5 rounded-full bg-white/60"></div>
+               ))}
+             </div>
+             <div className="flex gap-1">
+               {[1,2,3,4].map(i => (
+                 <div key={`g3-${i}`} className="w-1.5 h-1.5 rounded-full bg-white/60"></div>
+               ))}
+             </div>
+             <span className="text-2xl font-mono font-normal text-white ml-3 tracking-wider">{card.last4}</span>
            </div>
 
            <div className="flex justify-between items-end">
               <div>
-                <p className="text-[10px] opacity-80 uppercase tracking-wider mb-0.5">Cardholder</p>
-                <p className="text-[13px] font-medium">{card.cardholderName}</p>
+                <p className="text-[9px] uppercase tracking-widest mb-1 font-medium text-white/70">Cardholder</p>
+                <p className="text-sm font-normal tracking-wide text-white">{card.cardholderName}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] opacity-80 uppercase tracking-wider mb-0.5">Expires</p>
-                <p className="text-[11px] font-medium">{card.expiryDate}</p>
+                <p className="text-[9px] uppercase tracking-widest mb-1 font-medium text-white/70">Expires</p>
+                <p className="text-sm font-normal tracking-wide text-white">{card.expiryDate}</p>
               </div>
            </div>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mt-auto pt-2 flex gap-2" onClick={(e) => e.stopPropagation()}>
-        <Button 
-          variant="outline" 
-          className="flex-1 border-[#0033A0] text-[#0033A0] hover:bg-blue-50 h-[34px] text-[13px] font-medium rounded-lg bg-white"
-        >
-          {card.status === 'frozen' ? 'Unfreeze' : 'Freeze'}
-        </Button>
-        <Button 
-          variant="outline"
-          size="icon"
-          className="w-[34px] h-[34px] border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg bg-white"
-        >
-          <Settings className="w-4 h-4" />
-        </Button>
-        <Button 
-          variant="outline"
-          size="icon"
-          className="w-[34px] h-[34px] border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg bg-white"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </Button>
+      {/* Bottom Section: Details & Actions */}
+      <div className="p-5 flex flex-col flex-1 bg-white">
+        <div className="mb-6">
+          <p className="text-[11px] text-[#475569] uppercase tracking-widest font-medium mb-1.5">Monthly Spend</p>
+          <p className="text-[28px] font-normal text-[#000D45] tracking-tight leading-none">
+            {new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(card.monthlySpend)}
+          </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-auto grid grid-cols-2 gap-3">
+          <Button 
+            variant="secondary"
+            size="sm"
+            className={cn(
+              "w-full",
+              card.status === 'frozen' && "bg-[#E9F2FF] border-[#0033A0]"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onFreezeToggle) onFreezeToggle(card);
+            }}
+          >
+            {card.status === 'frozen' ? 'Unfreeze' : 'Freeze'}
+          </Button>
+          <Button 
+            className="w-full h-10 bg-[#0033A0] hover:bg-[#002b87] text-white text-sm font-normal rounded-full shadow-none transition-all"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
+            View Details
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -38,7 +38,10 @@ import { SupportScreen } from './components/screens/SupportScreen';
 import { InsightsScreen } from './components/screens/InsightsScreen';
 import { AccountTransactionsScreen } from './components/screens/AccountTransactionsScreen';
 import { DesignSystemScreen } from './components/screens/DesignSystemScreen';
+import { NotificationsScreen } from './components/notifications/NotificationsScreen';
+import { NotificationSettingsScreen } from './components/notifications/NotificationSettingsScreen';
 import { Toaster } from './components/ui/sonner';
+import { UserRole } from './components/cards/CardPermissionsContext';
 
 const STORAGE_KEY = 'metro_onboarding_progress_v4';
 
@@ -93,7 +96,7 @@ interface OnboardingData {
   accountNumber?: string;
 }
 
-type Phase2Flow = 'home' | 'plan' | 'funding' | 'payments' | 'compliance' | 'dashboard' | 'propositions' | 'lending' | 'admin' | 'accounts' | 'account-transactions' | 'cards' | 'support' | 'documents' | 'navigation-menu';
+type Phase2Flow = 'home' | 'plan' | 'funding' | 'payments' | 'compliance' | 'dashboard' | 'propositions' | 'lending' | 'admin' | 'accounts' | 'account-transactions' | 'cards' | 'support' | 'documents' | 'navigation-menu' | 'notifications' | 'notification-settings';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -104,9 +107,11 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | undefined>(undefined);
+  const [selectedSupportSection, setSelectedSupportSection] = useState<string | undefined>(undefined);
   const [isManualEntry, setIsManualEntry] = useState(false);
   const [showDesignSystem, setShowDesignSystem] = useState(false);
   const [selectedBusinessAccounts, setSelectedBusinessAccounts] = useState<string[]>(['1', '2']);
+  const [userRole, setUserRole] = useState<UserRole>('admin');
   
   // Track Phase 2 category completion
   const [completedCategories, setCompletedCategories] = useState({
@@ -214,6 +219,13 @@ export default function App() {
       if (params?.transactionId) {
         setSelectedTransactionId(params.transactionId);
       }
+    }
+
+    // Handle support navigation
+    if (flow === 'support' && params?.section) {
+      setSelectedSupportSection(params.section);
+    } else if (flow !== 'support') {
+      setSelectedSupportSection(undefined);
     }
   };
 
@@ -789,6 +801,8 @@ export default function App() {
         businessData={onboardingData}
         selectedAccounts={selectedBusinessAccounts}
         onAccountSelectionChange={setSelectedBusinessAccounts}
+        userRole={userRole}
+        onRoleChange={setUserRole}
       />
     );
   }
@@ -801,6 +815,35 @@ export default function App() {
         businessData={onboardingData}
         selectedAccounts={selectedBusinessAccounts}
         onAccountSelectionChange={setSelectedBusinessAccounts}
+        initialSection={selectedSupportSection}
+      />
+    );
+  }
+
+  // Notifications
+  if (phase2Flow === 'notifications') {
+    return (
+      <NotificationsScreen
+        onNavigate={navigatePhase2}
+        businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
+        userRole={userRole}
+        onRoleChange={setUserRole}
+      />
+    );
+  }
+
+  // Notification Settings
+  if (phase2Flow === 'notification-settings') {
+    return (
+      <NotificationSettingsScreen
+        onNavigate={navigatePhase2}
+        businessData={onboardingData}
+        selectedAccounts={selectedBusinessAccounts}
+        onAccountSelectionChange={setSelectedBusinessAccounts}
+        userRole={userRole}
+        onRoleChange={setUserRole}
       />
     );
   }

@@ -80,7 +80,7 @@ export function NavigationMenuScreen({ onNavigate, onShowDesignSystem }: Navigat
           <div className="flex items-start gap-6">
             {/* Icon */}
             <div className="hidden sm:block">
-              <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center shrink-0 shadow-sm">
+              <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center shrink-0">
                 <Map className="w-12 h-12 text-primary-foreground" strokeWidth={1.5} />
               </div>
             </div>
@@ -119,7 +119,7 @@ export function NavigationMenuScreen({ onNavigate, onShowDesignSystem }: Navigat
               return (
                 <Card
                   key={screen.step}
-                  className="hover:shadow-md hover:border-accent/50 transition-all cursor-pointer group bg-white"
+                  className="hover:border-accent/50 transition-all cursor-pointer group bg-white"
                   onClick={() => onNavigate(screen.step, 1)}
                 >
                   <CardHeader className="pb-3">
@@ -158,7 +158,7 @@ export function NavigationMenuScreen({ onNavigate, onShowDesignSystem }: Navigat
               return (
                 <Card
                   key={`${screen.flow}-${screen.step}`}
-                  className="hover:shadow-md hover:border-accent/50 transition-all cursor-pointer group bg-white"
+                  className="hover:border-accent/50 transition-all cursor-pointer group bg-white"
                   onClick={() => onNavigate(1, 2, screen.flow, screen.step)}
                 >
                   <CardHeader className="pb-3">
@@ -193,7 +193,7 @@ export function NavigationMenuScreen({ onNavigate, onShowDesignSystem }: Navigat
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <Card
-              className="hover:shadow-md hover:border-accent/50 transition-all cursor-pointer group bg-white"
+              className="hover:border-accent/50 transition-all cursor-pointer group bg-white"
               onClick={onShowDesignSystem}
             >
               <CardHeader className="pb-3">
@@ -217,7 +217,7 @@ export function NavigationMenuScreen({ onNavigate, onShowDesignSystem }: Navigat
             </Card>
 
             <Card
-              className="hover:shadow-md hover:border-accent/50 transition-all cursor-pointer group bg-white"
+              className="hover:border-accent/50 transition-all cursor-pointer group bg-white"
               onClick={() => onNavigate(1, 2, 'dashboard', 1)}
             >
               <CardHeader className="pb-3">

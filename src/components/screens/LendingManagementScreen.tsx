@@ -292,7 +292,7 @@ export function LendingManagementScreen({ onNavigate, businessData, onResume }: 
                 return (
                   <button
                     key={product.id}
-                    className="bg-white rounded-2xl p-6 text-left hover:shadow-lg transition-all group border border-border hover:border-[#0033A0]"
+                    className="bg-white rounded-2xl p-6 text-left transition-all group border border-border hover:border-[#0033A0]"
                   >
                     <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
@@ -334,7 +334,7 @@ export function LendingManagementScreen({ onNavigate, businessData, onResume }: 
                 return (
                   <button
                     key={tool.id}
-                    className="bg-white rounded-2xl p-5 text-left hover:shadow-lg transition-all group border border-border hover:border-[#0033A0]"
+                    className="bg-white rounded-2xl p-5 text-left transition-all group border border-border hover:border-[#0033A0]"
                   >
                     <div className="w-10 h-10 bg-[#0033A0]/10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                       <Icon className="w-5 h-5 text-[#0033A0]" />
@@ -478,7 +478,7 @@ export function LendingManagementScreen({ onNavigate, businessData, onResume }: 
                     return (
                       <button
                         key={option.id}
-                        className="bg-white rounded-2xl p-5 text-left hover:shadow-lg transition-all group border border-border hover:border-[#0033A0]"
+                        className="bg-white rounded-2xl p-5 text-left transition-all group border border-border hover:border-[#0033A0]"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-10 h-10 bg-[#0033A0]/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">

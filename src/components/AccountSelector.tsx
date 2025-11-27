@@ -65,7 +65,7 @@ export function AccountSelector({ selectedAccounts, onSelectionChange }: Account
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-full bg-muted/30 hover:bg-muted/50 transition-colors"
       >
         <div className="flex-1 min-w-0 text-left">
           <p className="text-sm truncate font-medium" style={{ color: '#001A72' }}>
@@ -90,7 +90,7 @@ export function AccountSelector({ selectedAccounts, onSelectionChange }: Account
           />
           
           {/* Dropdown */}
-          <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-hidden w-[380px]">
+          <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-[8px] z-[9999] overflow-hidden w-[380px]">
             {/* Header */}
             <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
               <p className="text-xs font-medium text-gray-900 uppercase tracking-wide">Select Accounts</p>

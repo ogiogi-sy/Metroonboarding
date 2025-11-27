@@ -113,7 +113,7 @@ export function AddonsHubScreen({ selectedPlan, onComplete }: AddonsHubScreenPro
             return (
               <div
                 key={addon.id}
-                className="relative bg-white border border-border rounded-xl p-6 hover:border-accent hover:shadow-md transition-all group"
+                className="relative bg-white border border-border rounded-xl p-6 hover:border-accent transition-all group"
               >
                 {addon.badge && (
                   <div className={`absolute -top-3 right-4 px-3 py-1 rounded-full text-xs ${
@@ -149,7 +149,7 @@ export function AddonsHubScreen({ selectedPlan, onComplete }: AddonsHubScreenPro
                 <Button
                   onClick={() => handleAddonClick(addon.id)}
                   variant={addon.recommended ? 'default' : 'outline'}
-                  className="w-full group-hover:shadow-sm"
+                  className="w-full"
                 >
                   <span>Set up now</span>
                   <ArrowRight className="w-4 h-4 ml-2" />

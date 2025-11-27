@@ -136,7 +136,7 @@ export function BusinessLookupScreen({ onNext, onManual, currentStep, totalSteps
 
         {/* Search Results */}
         {searchResults.length > 0 && (
-          <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-[0px_4px_12px_rgba(0,0,0,0.08)]">
+          <div className="bg-white border border-border rounded-2xl overflow-hidden">
             <div className="divide-y divide-border max-h-80 overflow-y-auto">
               {searchResults.map((result) => (
                 <button

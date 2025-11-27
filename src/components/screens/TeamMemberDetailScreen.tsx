@@ -1,4 +1,5 @@
-import { ArrowLeft, UserCircle, Shield, Activity, Smartphone, AlertTriangle } from 'lucide-react';
+import React from 'react';
+import { ArrowLeft, UserCircle, Shield, Activity, Smartphone, AlertTriangle, CheckSquare, Square } from 'lucide-react';
 
 interface TeamMemberDetailScreenProps {
   onNavigate: (screen: string) => void;
@@ -6,8 +7,17 @@ interface TeamMemberDetailScreenProps {
 }
 
 export function TeamMemberDetailScreen({ onNavigate, businessData }: TeamMemberDetailScreenProps) {
+  const [isEditingPermissions, setIsEditingPermissions] = React.useState(false);
+  const [accessType, setAccessType] = React.useState<'all' | 'specific'>('all');
+  const [notifications, setNotifications] = React.useState({
+    payments: true,
+    statements: false,
+    security: true,
+    marketing: false
+  });
+
   // Mock data for a team member
-  const member = {
+  const [member, setMember] = React.useState({
     name: 'Michael Chen',
     role: 'Finance Manager',
     email: 'michael.chen@business.com',
@@ -35,6 +45,16 @@ export function TeamMemberDetailScreen({ onNavigate, businessData }: TeamMemberD
       { name: 'iPhone 14 Pro', lastUsed: '2 hours ago', location: 'London, UK' },
       { name: 'MacBook Pro', lastUsed: '1 day ago', location: 'London, UK' }
     ]
+  });
+
+  const togglePermission = (key: keyof typeof member.permissions) => {
+    setMember(prev => ({
+      ...prev,
+      permissions: {
+        ...prev.permissions,
+        [key]: !prev.permissions[key]
+      }
+    }));
   };
 
   const activityLog = [
@@ -95,8 +115,15 @@ export function TeamMemberDetailScreen({ onNavigate, businessData }: TeamMemberD
             <Shield className="w-5 h-5 text-accent" />
             <h3 style={{ color: '#001A72' }}>Role & Permissions</h3>
           </div>
-          <button className="px-4 h-10 border border-border rounded-full text-sm hover:border-accent transition-colors">
-            Edit Permissions
+          <button 
+            onClick={() => setIsEditingPermissions(!isEditingPermissions)}
+            className={`px-4 h-10 border rounded-full text-sm transition-colors ${
+              isEditingPermissions 
+                ? 'bg-accent text-white border-accent' 
+                : 'border-border hover:border-accent'
+            }`}
+          >
+            {isEditingPermissions ? 'Done Editing' : 'Edit Permissions'}
           </button>
         </div>
 
@@ -106,7 +133,9 @@ export function TeamMemberDetailScreen({ onNavigate, businessData }: TeamMemberD
           </label>
           <select
             value={member.role}
-            className="w-full max-w-md h-12 px-4 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+            disabled={!isEditingPermissions}
+            onChange={(e) => setMember({...member, role: e.target.value})}
+            className="w-full max-w-md h-12 px-4 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-gray-50 disabled:text-gray-500"
           >
             <option value="Admin">Admin</option>
             <option value="Finance Manager">Finance Manager</option>
@@ -118,16 +147,28 @@ export function TeamMemberDetailScreen({ onNavigate, businessData }: TeamMemberD
         </div>
 
         <div>
-          <p className="text-sm mb-4" style={{ color: '#001A72' }}>Current Permissions:</p>
+          <p className="text-sm mb-4" style={{ color: '#001A72' }}>
+            {isEditingPermissions ? 'Customize Permissions:' : 'Current Permissions:'}
+          </p>
           <div className="grid md:grid-cols-2 gap-3">
             {Object.entries(member.permissions).map(([key, value]) => (
               <div 
                 key={key} 
-                className={`flex items-center gap-2 p-3 rounded-lg ${
-                  value ? 'bg-[#E9F2FF]' : 'bg-[#F5F7FA]'
-                }`}
+                onClick={() => isEditingPermissions && togglePermission(key as keyof typeof member.permissions)}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                  isEditingPermissions ? 'cursor-pointer hover:bg-gray-50' : ''
+                } ${value ? 'bg-[#E9F2FF]' : 'bg-[#F5F7FA]'}`}
               >
-                <div className={`w-2 h-2 rounded-full ${value ? 'bg-[#16A34A]' : 'bg-[#475569]'}`} />
+                {isEditingPermissions ? (
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center ${
+                    value ? 'bg-accent border-accent text-white' : 'bg-white border-gray-300'
+                  }`}>
+                    {value && <CheckSquare className="w-3.5 h-3.5" />}
+                  </div>
+                ) : (
+                  <div className={`w-2 h-2 rounded-full ${value ? 'bg-[#16A34A]' : 'bg-[#475569]'}`} />
+                )}
+                
                 <p className={`text-sm ${value ? 'text-[#001A72]' : 'text-muted-foreground'}`}>
                   {key === 'viewAccounts' && 'View accounts'}
                   {key === 'initiatePayments' && 'Initiate payments'}
@@ -142,6 +183,100 @@ export function TeamMemberDetailScreen({ onNavigate, businessData }: TeamMemberD
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Data Access Control */}
+        <div className="mt-8 pt-8 border-t border-border">
+          <h4 className="text-sm font-medium mb-4" style={{ color: '#001A72' }}>Data Access Control</h4>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <input 
+                type="radio" 
+                id="access-all" 
+                name="accessType" 
+                checked={accessType === 'all'} 
+                onChange={() => setAccessType('all')}
+                disabled={!isEditingPermissions}
+                className="w-4 h-4 text-accent"
+              />
+              <label htmlFor="access-all" className="text-sm text-foreground">
+                All Accounts (Current & Future)
+              </label>
+            </div>
+            <div className="flex items-center gap-3">
+              <input 
+                type="radio" 
+                id="access-specific" 
+                name="accessType" 
+                checked={accessType === 'specific'} 
+                onChange={() => setAccessType('specific')}
+                disabled={!isEditingPermissions}
+                className="w-4 h-4 text-accent"
+              />
+              <label htmlFor="access-specific" className="text-sm text-foreground">
+                Specific Accounts Only
+              </label>
+            </div>
+            
+            {accessType === 'specific' && (
+              <div className="ml-7 mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" defaultChecked disabled={!isEditingPermissions} className="rounded border-gray-300 text-accent" />
+                  <span className="text-sm">Main Operating Account (***9921)</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" disabled={!isEditingPermissions} className="rounded border-gray-300 text-accent" />
+                  <span className="text-sm">Savings Account (***8821)</span>
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Notification Control */}
+        <div className="mt-8 pt-8 border-t border-border">
+          <h4 className="text-sm font-medium mb-4" style={{ color: '#001A72' }}>Notifications</h4>
+          <div className="grid sm:grid-cols-2 gap-4">
+             <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <span className="text-sm text-gray-700">Payment Approvals</span>
+                <div 
+                  onClick={() => isEditingPermissions && setNotifications(p => ({...p, payments: !p.payments}))}
+                  className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.payments ? 'bg-accent' : 'bg-gray-300'}`}
+                >
+                  <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.payments ? 'translate-x-5' : ''}`} />
+                </div>
+             </label>
+
+             <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <span className="text-sm text-gray-700">Statements Ready</span>
+                <div 
+                  onClick={() => isEditingPermissions && setNotifications(p => ({...p, statements: !p.statements}))}
+                  className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.statements ? 'bg-accent' : 'bg-gray-300'}`}
+                >
+                  <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.statements ? 'translate-x-5' : ''}`} />
+                </div>
+             </label>
+
+             <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <span className="text-sm text-gray-700">Security Alerts</span>
+                <div 
+                  onClick={() => isEditingPermissions && setNotifications(p => ({...p, security: !p.security}))}
+                  className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.security ? 'bg-accent' : 'bg-gray-300'}`}
+                >
+                  <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.security ? 'translate-x-5' : ''}`} />
+                </div>
+             </label>
+
+             <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <span className="text-sm text-gray-700">Marketing</span>
+                <div 
+                  onClick={() => isEditingPermissions && setNotifications(p => ({...p, marketing: !p.marketing}))}
+                  className={`w-11 h-6 rounded-full transition-colors flex items-center px-1 cursor-pointer ${notifications.marketing ? 'bg-accent' : 'bg-gray-300'}`}
+                >
+                  <div className={`w-4 h-4 bg-white rounded-full transition-transform ${notifications.marketing ? 'translate-x-5' : ''}`} />
+                </div>
+             </label>
           </div>
         </div>
       </div>

@@ -90,7 +90,7 @@ export function HelpWidget({ currentStep, stepLabel, onRestart }: HelpWidgetProp
   if (showChat) {
     return (
       <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-white border-2 border-accent rounded-2xl shadow-2xl w-96 h-[500px] flex flex-col">
+        <div className="bg-white border-2 border-accent rounded-2xl w-96 h-[500px] flex flex-col">
           {/* Chat Header */}
           <div className="bg-accent text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -167,7 +167,7 @@ export function HelpWidget({ currentStep, stepLabel, onRestart }: HelpWidgetProp
       {/* Help Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-accent hover:bg-accent/90 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 group"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-accent hover:bg-accent/90 text-white rounded-full flex items-center justify-center transition-all hover:scale-110 group"
         aria-label="Help"
       >
         {isOpen ? (
@@ -192,7 +192,7 @@ export function HelpWidget({ currentStep, stepLabel, onRestart }: HelpWidgetProp
           />
 
           {/* Menu Panel */}
-          <div className="fixed bottom-24 right-6 z-50 w-96 bg-white border border-border rounded-xl shadow-2xl overflow-hidden">
+          <div className="fixed bottom-24 right-6 z-50 w-96 bg-white border border-border rounded-xl overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-accent/10 to-primary/10 px-6 py-4 border-b border-border">
               <h3 className="mb-1">Need help?</h3>
@@ -284,7 +284,7 @@ export function HelpWidget({ currentStep, stepLabel, onRestart }: HelpWidgetProp
                       onRestart();
                     }
                   }}
-                  className="w-full bg-white hover:bg-destructive/5 border border-border hover:border-destructive rounded-lg p-3 text-left transition-all group"
+                  className="w-full bg-white hover:bg-destructive/5 border border-border hover:border-destructive rounded-full p-3 text-left transition-all group"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-destructive/10 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">

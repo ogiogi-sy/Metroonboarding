@@ -1,4 +1,4 @@
-import { CreditCard, TrendingUp, BarChart3, FileText, History } from 'lucide-react';
+import { CreditCard, TrendingUp, BarChart3, FileText } from 'lucide-react';
 
 interface NavigationItemsProps {
   activeSection?: 'home' | 'accounts' | 'transactions' | 'payments' | 'cards' | 'documents' | 'lending' | 'dashboard' | 'propositions' | 'support' | 'admin';
@@ -49,17 +49,7 @@ export function NavigationItems({ activeSection = 'home', onNavigate, onSectionC
         <span className="text-sm">Accounts</span>
       </button>
 
-      <button 
-        onClick={() => handleNavigation('account-transactions')}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-          activeSection === 'transactions' 
-            ? 'bg-accent/10 text-accent' 
-            : 'hover:bg-muted/50 text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        <History className="w-5 h-5" />
-        <span className="text-sm">Transactions</span>
-      </button>
+
 
       <button 
         onClick={() => handleNavigation('payments')}

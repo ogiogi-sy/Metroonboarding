@@ -85,7 +85,7 @@ export function CelebrationScreen({ sortCode, accountNumber, companyName, onCont
           {/* Right - Card with Account Details */}
           <div className="relative">
             {/* Card */}
-            <div className="relative w-full aspect-[1.586/1] bg-gradient-to-br from-[#1e293b] to-[#0f172a] rounded-3xl overflow-hidden p-10 shadow-2xl">
+            <div className="relative w-full aspect-[1.586/1] bg-gradient-to-br from-[#1e293b] to-[#0f172a] rounded-3xl overflow-hidden p-10">
               {/* Background Pattern */}
               <div className="absolute inset-0 opacity-5">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl transform translate-x-20 -translate-y-20" />
@@ -121,7 +121,7 @@ export function CelebrationScreen({ sortCode, accountNumber, companyName, onCont
             </div>
 
             {/* Account Details Overlay */}
-            <div className="absolute -bottom-8 -left-8 bg-white rounded-2xl shadow-lg border border-border p-6">
+            <div className="absolute -bottom-8 -left-8 bg-white rounded-2xl border border-border p-6">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-2 h-2 bg-[#16A34A] rounded-full" />
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Account Details</p>

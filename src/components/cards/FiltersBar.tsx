@@ -4,12 +4,12 @@ import { Label } from '../ui/label';
 
 export function FiltersBar() {
   return (
-    <div className="bg-white border-b border-gray-200 py-4 px-8">
-      <div className="max-w-7xl mx-auto flex flex-wrap gap-4">
-        <div className="flex flex-col gap-1 min-w-[160px]">
-          <Label className="text-xs text-gray-600 font-normal">Entity</Label>
+    <div className="py-6 px-8">
+      <div className="max-w-7xl mx-auto flex flex-wrap gap-6">
+        <div className="flex flex-col gap-1.5 min-w-[180px]">
+          <Label className="text-sm font-medium text-[#64748B]">Entity</Label>
           <Select defaultValue="all">
-            <SelectTrigger className="h-[38px] text-[13px] border-gray-300 focus:ring-[#0033A0] rounded-lg">
+            <SelectTrigger className="h-10 text-sm bg-white border-[#E2E8F0] focus:ring-[#0033A0] rounded-[8px] shadow-none text-[#000D45] font-medium">
               <SelectValue placeholder="Select entity" />
             </SelectTrigger>
             <SelectContent>
@@ -20,10 +20,10 @@ export function FiltersBar() {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1 min-w-[160px]">
-          <Label className="text-xs text-gray-600 font-normal">Card Type</Label>
+        <div className="flex flex-col gap-1.5 min-w-[180px]">
+          <Label className="text-sm font-medium text-[#64748B]">Card Type</Label>
           <Select defaultValue="all">
-            <SelectTrigger className="h-[38px] text-[13px] border-gray-300 focus:ring-[#0033A0] rounded-lg">
+            <SelectTrigger className="h-10 text-sm bg-white border-[#E2E8F0] focus:ring-[#0033A0] rounded-[8px] shadow-none text-[#000D45] font-medium">
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
@@ -35,10 +35,10 @@ export function FiltersBar() {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1 min-w-[160px]">
-          <Label className="text-xs text-gray-600 font-normal">Status</Label>
+        <div className="flex flex-col gap-1.5 min-w-[180px]">
+          <Label className="text-sm font-medium text-[#64748B]">Status</Label>
           <Select defaultValue="active">
-            <SelectTrigger className="h-[38px] text-[13px] border-gray-300 focus:ring-[#0033A0] rounded-lg">
+            <SelectTrigger className="h-10 text-sm bg-white border-[#E2E8F0] focus:ring-[#0033A0] rounded-[8px] shadow-none text-[#000D45] font-medium">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>

@@ -68,7 +68,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
             <select
               value={selectedAccount}
               onChange={(e) => setSelectedAccount(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-border bg-white text-sm"
+              className="w-full px-4 py-3 rounded-[8px] border border-border bg-white text-sm"
             >
               <option value="">Choose an account...</option>
               <option value="12345678">Business Current Account • 12345678</option>
@@ -84,7 +84,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
             <select
               value={selectedPurpose}
               onChange={(e) => setSelectedPurpose(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-border bg-white text-sm"
+              className="w-full px-4 py-3 rounded-[8px] border border-border bg-white text-sm"
             >
               <option value="">Choose a purpose...</option>
               <option value="auditor">For Auditor</option>
@@ -157,7 +157,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
             <select
               value={selectedAccount}
               onChange={(e) => setSelectedAccount(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-border bg-white text-sm"
+              className="w-full px-4 py-3 rounded-[8px] border border-border bg-white text-sm"
             >
               <option value="">Choose an account...</option>
               <option value="12345678">Business Current Account • 12345678</option>
@@ -175,7 +175,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-white text-sm"
+                className="w-full px-4 py-3 rounded-[8px] border border-border bg-white text-sm"
               />
             </div>
             <div>
@@ -186,7 +186,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-white text-sm"
+                className="w-full px-4 py-3 rounded-[8px] border border-border bg-white text-sm"
               />
             </div>
           </div>
@@ -198,7 +198,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
             <div className="flex gap-3">
               <button
                 onClick={() => setFormat('pdf')}
-                className={`flex-1 px-4 py-3 rounded-lg border text-sm transition-all ${
+                className={`flex-1 px-4 py-3 rounded-[8px] border text-sm transition-all ${
                   format === 'pdf'
                     ? 'border-accent bg-accent/5 text-accent'
                     : 'border-border hover:border-accent/50'
@@ -208,7 +208,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
               </button>
               <button
                 onClick={() => setFormat('csv')}
-                className={`flex-1 px-4 py-3 rounded-lg border text-sm transition-all ${
+                className={`flex-1 px-4 py-3 rounded-[8px] border text-sm transition-all ${
                   format === 'csv'
                     ? 'border-accent bg-accent/5 text-accent'
                     : 'border-border hover:border-accent/50'
@@ -219,7 +219,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
             </div>
           </div>
 
-          <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+          <div className="flex items-center gap-3 p-3 rounded-[8px] border border-border">
             <input
               type="checkbox"
               id="branding"
@@ -291,7 +291,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
           <select
             value={taxYear}
             onChange={(e) => setTaxYear(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-border bg-white text-sm"
+            className="w-full px-4 py-3 rounded-[8px] border border-border bg-white text-sm"
           >
             <option value="2024-25">2024/25</option>
             <option value="2023-24">2023/24</option>
@@ -306,7 +306,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
           <select
             value={selectedAccount}
             onChange={(e) => setSelectedAccount(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-border bg-white text-sm"
+            className="w-full px-4 py-3 rounded-[8px] border border-border bg-white text-sm"
           >
             <option value="">All accounts</option>
             <option value="12345678">Business Current Account • 12345678</option>
@@ -333,7 +333,7 @@ export function GenerateDocumentModal({ isOpen, onClose, type }: GenerateDocumen
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6 border border-gray-200">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="text-lg mb-1" style={{ color: '#001A72' }}>{getTitle()}</h3>

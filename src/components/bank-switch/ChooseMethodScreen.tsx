@@ -32,9 +32,9 @@ export function ChooseMethodScreen({ onContinue, onBack }: ChooseMethodScreenPro
         {/* Open Banking Option */}
         <button
           onClick={() => setSelectedMethod('openbanking')}
-          className={`w-full text-left bg-white border-2 rounded-2xl p-6 transition-all ${
+          className={`w-full text-left bg-white border-2 rounded-full p-6 transition-all ${
             selectedMethod === 'openbanking'
-              ? 'border-accent shadow-lg'
+              ? 'border-accent bg-accent/5'
               : 'border-border hover:border-accent/50'
           }`}
         >
@@ -72,9 +72,9 @@ export function ChooseMethodScreen({ onContinue, onBack }: ChooseMethodScreenPro
         {/* Manual Option */}
         <button
           onClick={() => setSelectedMethod('manual')}
-          className={`w-full text-left bg-white border-2 rounded-2xl p-6 transition-all ${
+          className={`w-full text-left bg-white border-2 rounded-full p-6 transition-all ${
             selectedMethod === 'manual'
-              ? 'border-accent shadow-lg'
+              ? 'border-accent bg-accent/5'
               : 'border-border hover:border-accent/50'
           }`}
         >

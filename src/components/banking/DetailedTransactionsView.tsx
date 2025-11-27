@@ -135,21 +135,32 @@ export function DetailedTransactionsView({
       header: 'Merchant',
       accessorKey: 'merchantName' as keyof Transaction,
       sortKey: 'merchantName' as keyof Transaction,
-      cell: (tx: Transaction) => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-base shrink-0 text-[#001A72] font-medium">
-            {tx.merchantName.charAt(0)}
+      cell: (tx: Transaction) => {
+        // Mock eligibility logic
+        const isEligible = tx.merchantName?.includes('Slack') || tx.merchantName?.includes('Google') || (tx.amount < -100 && tx.amount > -1000 && !tx.merchantName.includes('Transfer'));
+        
+        return (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-base shrink-0 text-[#001A72] font-medium">
+              {tx.merchantName.charAt(0)}
+            </div>
+            <div>
+              <div className="font-medium text-[#001A72]">{tx.merchantName}</div>
+              {tx.reference && <div className="text-xs text-muted-foreground truncate max-w-[150px]">{tx.reference}</div>}
+              {isEligible && (
+                 <span className="inline-flex items-center rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 mt-0.5">
+                   Eligible for instalments
+                 </span>
+              )}
+            </div>
           </div>
-          <div>
-            <div className="font-medium text-[#001A72]">{tx.merchantName}</div>
-            {tx.reference && <div className="text-xs text-muted-foreground truncate max-w-[150px]">{tx.reference}</div>}
-          </div>
-        </div>
-      )
+        );
+      }
     },
     {
       header: 'Category',
       accessorKey: 'category' as keyof Transaction,
+      className: 'hidden md:table-cell',
       cell: (tx: Transaction) => (
         <Badge variant="outline" className="font-normal text-xs text-gray-600 border-gray-200">
           {tx.category}
@@ -159,6 +170,7 @@ export function DetailedTransactionsView({
     {
       header: 'Account',
       accessorKey: 'accountId' as keyof Transaction,
+      className: 'hidden lg:table-cell',
       cell: (tx: Transaction) => {
         const account = accounts.find(a => a.id === tx.accountId);
         return (
@@ -172,6 +184,7 @@ export function DetailedTransactionsView({
       header: 'Date',
       accessorKey: 'date' as keyof Transaction,
       sortKey: 'date' as keyof Transaction,
+      className: 'hidden sm:table-cell',
       cell: (tx: Transaction) => (
         <span className="text-sm text-gray-900">
           {tx.date}
@@ -194,7 +207,7 @@ export function DetailedTransactionsView({
   return (
     <div className="space-y-4 h-full flex flex-col">
       {/* 1. Search & Controls Bar */}
-      <div className="bg-white p-3 rounded-lg border border-border shadow-sm space-y-3">
+      <div className="bg-white p-3 rounded-lg border border-border space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Omni-Search */}
           <div className="relative flex-1">
@@ -207,12 +220,12 @@ export function DetailedTransactionsView({
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             {/* Filter Toggle */}
             <Button 
               variant={isFilterPanelOpen ? "secondary" : "outline"} 
               size="sm"
-              className={`gap-2 h-9 py-2 ${isFilterPanelOpen ? 'bg-accent/10 text-[#0033A0] border-accent/20' : ''}`}
+              className={`flex-1 sm:flex-none gap-2 h-9 py-2 ${isFilterPanelOpen ? 'bg-accent/10 text-[#0033A0] border-accent/20' : ''}`}
               onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
             >
               <Filter className="h-3.5 w-3.5" />
@@ -228,7 +241,7 @@ export function DetailedTransactionsView({
             <Button 
               variant="outline"
               size="sm" 
-              className="gap-2 h-9 py-2 text-[#0033A0] border-border hover:bg-blue-50"
+              className="flex-1 sm:flex-none gap-2 h-9 py-2 text-[#0033A0] border-border hover:bg-blue-50"
               onClick={() => setIsExportDialogOpen(true)}
             >
               <Download className="h-3.5 w-3.5" />
@@ -245,7 +258,7 @@ export function DetailedTransactionsView({
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Type</label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -260,7 +273,7 @@ export function DetailedTransactionsView({
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Category</label>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -276,7 +289,7 @@ export function DetailedTransactionsView({
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Status</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -292,7 +305,7 @@ export function DetailedTransactionsView({
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Team Member</label>
               <Select value={userFilter} onValueChange={setUserFilter}>
-                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white shadow-sm">
+                <SelectTrigger className="w-full h-9 py-2 text-sm px-3 bg-white">
                   <SelectValue placeholder="All Members" />
                 </SelectTrigger>
                 <SelectContent>
@@ -309,7 +322,7 @@ export function DetailedTransactionsView({
               <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Date Range</label>
               <Button 
                 variant="outline" 
-                className="w-full justify-start text-left font-normal h-9 py-2 text-sm px-3 bg-white hover:bg-white hover:text-foreground shadow-sm border-input rounded-md"
+                className="w-full justify-start text-left font-normal h-9 py-2 text-sm px-3 bg-white hover:bg-white hover:text-foreground border-input rounded-md"
                 onClick={() => setIsDateDialogOpen(true)}
               >
                 <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50 shrink-0" />

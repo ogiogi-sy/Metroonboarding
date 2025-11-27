@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { NavigationSidebar } from '../NavigationSidebar';
-import { MobileNav } from '../MobileNav';
+import { DashboardHeader } from '../DashboardHeader';
 import { TransactionDrawer } from '../TransactionDrawer';
 import { DetailedTransactionsView } from '../banking/DetailedTransactionsView';
 import { 
@@ -310,6 +310,9 @@ export function AccountsScreen({
 
   // --- Overview Logic ---
   
+  // Use state for transactions to allow updates (e.g. BNPL status)
+  const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
+
   const handleTransactionClick = (transaction: Transaction) => {
     const formattedTransaction = {
       ...transaction,
@@ -327,8 +330,16 @@ export function AccountsScreen({
     setIsDrawerOpen(true);
   };
 
+  const handleUpdateTransaction = (updatedTransaction: any) => {
+     // Update the selected transaction to reflect changes immediately in the drawer
+     setSelectedTransaction(updatedTransaction);
+     
+     // Update the main list
+     setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? { ...t, ...updatedTransaction } : t));
+  };
+
   // Limit overview transactions to 5
-  const filteredOverviewTransactions = MOCK_TRANSACTIONS.slice(0, 5);
+  const filteredOverviewTransactions = transactions.slice(0, 5);
 
   const overviewColumns = [
     {
@@ -338,7 +349,24 @@ export function AccountsScreen({
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs">
             {item.type === 'card' ? '💳' : item.type === 'faster_payment' ? '⚡️' : '🏦'}
           </div>
-          <span className="font-medium text-[#001A72]">{item.merchantName}</span>
+          <div className="flex flex-col">
+            <span className="font-medium text-[#001A72]">{item.merchantName}</span>
+            {/* Mock eligibility check for overview list */}
+            {(item.merchantName?.includes('Slack') || item.merchantName?.includes('Google') || (item.amount < -100 && item.amount > -1000 && !item.merchantName.includes('Transfer'))) && (
+               // @ts-ignore - checking dynamic property
+               !item.bnplActive && (
+                 <span className="inline-flex items-center rounded-md bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 mt-0.5 w-fit">
+                   Eligible for instalments
+                 </span>
+               )
+            )}
+            {/* @ts-ignore */}
+            {item.bnplActive && (
+                 <span className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 mt-0.5 w-fit">
+                   In instalments
+                 </span>
+            )}
+          </div>
         </div>
       ),
     },
@@ -389,59 +417,45 @@ export function AccountsScreen({
         />
         
         <main className="flex-1 lg:ml-64 flex flex-col">
-          {/* Top Header */}
-          <header className="bg-white border-b border-border sticky top-0 z-30">
-            <div className="px-4 sm:px-6 lg:px-8 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <MobileNav 
-                    activeSection="accounts" 
-                    onNavigate={onNavigate}
-                    businessData={businessData}
-                    selectedAccounts={selectedAccounts}
-                    onAccountSelectionChange={onAccountSelectionChange}
-                  />
+          <DashboardHeader 
+            activeSection="accounts"
+            onNavigate={onNavigate}
+            businessData={businessData}
+            selectedAccounts={selectedAccounts}
+            onAccountSelectionChange={onAccountSelectionChange}
+          />
+          
+          {/* Page Header */}
+          <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+             {viewMode === 'overview' ? (
                   <div>
-                    {viewMode === 'overview' ? (
-                      <>
-                        <h1 className="text-2xl" style={{ color: '#001A72' }}>Accounts</h1>
-                        <p className="text-sm text-muted-foreground">Unified Overview</p>
-                      </>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={switchToOverview}
-                          className="hover:bg-muted/50 -ml-2"
-                        >
-                          <ArrowLeft className="h-5 w-5 text-[#001A72]" />
-                        </Button>
-                        <div>
-                          <h1 className="text-2xl" style={{ color: '#001A72' }}>Transactions</h1>
-                          <p className="text-sm text-muted-foreground">Detailed overview</p>
-                        </div>
-                      </div>
-                    )}
+                    <h1 className="text-2xl" style={{ color: '#001A72' }}>Accounts</h1>
+                    <p className="text-sm text-muted-foreground">Unified Overview</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center">
-                    <span className="text-sm">
-                      {businessData.companyName ? businessData.companyName.charAt(0) : 'B'}
-                    </span>
-                  </button>
-                </div>
-              </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={switchToOverview}
+                      className="hover:bg-muted/50 -ml-2"
+                    >
+                      <ArrowLeft className="h-5 w-5 text-[#001A72]" />
+                    </Button>
+                    <div>
+                      <h1 className="text-2xl" style={{ color: '#001A72' }}>Transactions</h1>
+                      <p className="text-sm text-muted-foreground">Detailed overview</p>
+                    </div>
+                  </div>
+                )}
             </div>
-          </header>
 
           {viewMode === 'overview' ? (
             /* --- OVERVIEW CONTENT --- */
-            <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 flex-1 w-full">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8 pt-4 space-y-8 flex-1 w-full">
               
               {/* 1. High-Level Summary */}
-              <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden grid lg:grid-cols-3">
+              <div className="bg-white rounded-2xl border border-border overflow-hidden grid lg:grid-cols-3">
                 {/* Left Column: Balances + Quick Actions */}
                 <div className="lg:col-span-2 flex flex-col">
                   <div className="p-8 flex-1">
@@ -495,17 +509,17 @@ export function AccountsScreen({
 
                   {/* Bottom Bar - Quick Actions */}
                   <div className="bg-gray-50 border-t border-border px-8 py-3 flex flex-wrap items-center gap-2 mt-auto">
-                    <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-[#0033A0] hover:bg-white border border-transparent hover:border-border shadow-none hover:shadow-sm transition-all">
+                    <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-[#0033A0] hover:bg-white border border-transparent hover:border-border shadow-none transition-all">
                       <ArrowRightLeft className="mr-2 h-3.5 w-3.5" />
                       Transfer Funds
                     </Button>
                     <div className="w-px h-4 bg-border mx-1" />
-                    <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-[#0033A0] hover:bg-white border border-transparent hover:border-border shadow-none hover:shadow-sm transition-all">
+                    <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-[#0033A0] hover:bg-white border border-transparent hover:border-border shadow-none transition-all">
                       <Download className="mr-2 h-3.5 w-3.5" />
                       Statement
                     </Button>
                     <div className="w-px h-4 bg-border mx-1" />
-                    <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-[#0033A0] hover:bg-white border border-transparent hover:border-border shadow-none hover:shadow-sm transition-all">
+                    <Button variant="ghost" size="sm" className="h-8 text-muted-foreground hover:text-[#0033A0] hover:bg-white border border-transparent hover:border-border shadow-none transition-all">
                       <TrendingUp className="mr-2 h-3.5 w-3.5" />
                       Cashflow Insights
                     </Button>
@@ -526,7 +540,7 @@ export function AccountsScreen({
                   <div className="flex-1 min-w-0 overflow-hidden relative">
                     <div className="absolute inset-0 overflow-y-auto pr-2 space-y-3 pb-10">
                       {MOCK_TASKS.map(task => (
-                        <div key={task.id} className="bg-white border border-border rounded-lg p-3 shadow-sm flex items-start gap-3">
+                        <div key={task.id} className="bg-white border border-border rounded-lg p-3 flex items-start gap-3">
                           <div className={`mt-0.5 ${task.type === 'warning' ? 'text-amber-600' : 'text-blue-600'}`}>
                             <task.icon className="h-4 w-4" />
                           </div>
@@ -559,7 +573,7 @@ export function AccountsScreen({
                   <CarouselContent className="-ml-6 py-1">
                     {filteredAccounts.map((account) => (
                       <CarouselItem key={account.id} className="pl-6 md:basis-1/2 xl:basis-1/3">
-                        <div className="h-full bg-white rounded-2xl border border-border hover:border-[#0033A0]/50 transition-colors flex flex-col shadow-sm overflow-hidden group relative">
+                        <div className="h-full bg-white rounded-2xl border border-border hover:border-[#0033A0]/50 transition-colors flex flex-col overflow-hidden group relative">
                       {/* Card Header */}
                       <div className="p-6 pb-4 border-b border-border/50 bg-gray-50/50">
                         <div className="flex items-start justify-between mb-3">
@@ -735,7 +749,7 @@ export function AccountsScreen({
             /* --- DETAILED TRANSACTIONS VIEW --- */
             <div className="max-w-[1600px] mx-auto w-full p-4 sm:p-6 lg:p-8 h-[calc(100vh-88px)]">
               <DetailedTransactionsView 
-                transactions={MOCK_TRANSACTIONS} 
+                transactions={transactions} 
                 accounts={MOCK_ACCOUNTS}
                 onTransactionClick={handleTransactionClick}
               />
@@ -748,6 +762,7 @@ export function AccountsScreen({
           transaction={selectedTransaction}
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
+          onUpdateTransaction={handleUpdateTransaction}
         />
       </div>
     </TooltipProvider>

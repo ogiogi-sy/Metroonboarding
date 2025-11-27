@@ -114,7 +114,7 @@ export function FilterableTable<T extends { id: string }>({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-[rgba(255,0,0,0)]">
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
         {!hideSearch && (
           <div className="relative w-full sm:w-72">
@@ -159,12 +159,12 @@ export function FilterableTable<T extends { id: string }>({
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-white overflow-hidden shadow-sm">
+      <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
         <Table>
-          <TableHeader className="bg-gray-50/50">
-            <TableRow className="hover:bg-gray-50/50">
+          <TableHeader>
+            <TableRow className="border-b border-gray-200 bg-gray-50">
               {enableMultiSelect && (
-                <TableHead className="w-[50px]">
+                <TableHead className="w-[50px] h-12">
                   <Checkbox 
                     checked={effectiveSelectedIds.size === paginatedData.length && paginatedData.length > 0}
                     onCheckedChange={toggleAllSelection}
@@ -174,7 +174,7 @@ export function FilterableTable<T extends { id: string }>({
               {columns.map((col, idx) => (
                 <TableHead 
                   key={idx} 
-                  className={`${col.className} ${col.sortKey ? 'cursor-pointer hover:text-[#0033A0] transition-colors' : ''}`}
+                  className={`h-12 text-xs font-medium text-gray-600 ${col.className} ${col.sortKey ? 'cursor-pointer hover:text-[#0033A0] transition-colors' : ''}`}
                   onClick={() => col.sortKey && onSort?.(col.sortKey)}
                 >
                   <div className={`flex items-center gap-1 ${col.className?.includes('text-right') ? 'justify-end' : ''}`}>
@@ -185,7 +185,7 @@ export function FilterableTable<T extends { id: string }>({
                   </div>
                 </TableHead>
               ))}
-              {actions && <TableHead className="w-[50px]"></TableHead>}
+              {actions && <TableHead className="w-[50px] h-12"></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -195,13 +195,14 @@ export function FilterableTable<T extends { id: string }>({
                   key={item.id}
                   onClick={() => onRowClick?.(item)}
                   className={`
+                    border-b border-gray-100 last:border-0
                     ${onRowClick ? 'cursor-pointer' : ''} 
                     ${enableMultiSelect && effectiveSelectedIds.has(item.id) ? 'bg-blue-50/30 hover:bg-blue-50/50' : 'hover:bg-gray-50'}
                     transition-colors
                   `}
                 >
                   {enableMultiSelect && (
-                    <TableCell onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="py-4" onClick={(e) => e.stopPropagation()}>
                       <Checkbox 
                         checked={effectiveSelectedIds.has(item.id)}
                         onCheckedChange={() => toggleRowSelection(item.id)}
@@ -209,7 +210,7 @@ export function FilterableTable<T extends { id: string }>({
                     </TableCell>
                   )}
                   {columns.map((col, idx) => (
-                    <TableCell key={idx} className={col.className}>
+                    <TableCell key={idx} className={`py-4 ${col.className}`}>
                       {col.cell
                         ? col.cell(item)
                         : typeof col.accessorKey === 'function'
@@ -218,7 +219,7 @@ export function FilterableTable<T extends { id: string }>({
                     </TableCell>
                   ))}
                   {actions && (
-                    <TableCell onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="py-4" onClick={(e) => e.stopPropagation()}>
                       {actions(item)}
                     </TableCell>
                   )}
@@ -228,11 +229,11 @@ export function FilterableTable<T extends { id: string }>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length + (actions ? 1 : 0) + (enableMultiSelect ? 1 : 0)}
-                  className="h-24 text-center"
+                  className="h-32 text-center"
                 >
-                  <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
-                    <Search className="h-8 w-8 mb-2 opacity-20" />
-                    <p>No results found</p>
+                  <div className="flex flex-col items-center justify-center text-gray-400">
+                    <Search className="h-10 w-10 mb-3 opacity-20" />
+                    <p className="text-sm">No results found</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -241,7 +242,7 @@ export function FilterableTable<T extends { id: string }>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-2 bg-transparent">
         <div className="text-sm text-muted-foreground">
           Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
           <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredData.length)}</span> of{' '}
@@ -253,7 +254,7 @@ export function FilterableTable<T extends { id: string }>({
             size="sm"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 bg-transparent hover:bg-gray-100"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -263,7 +264,7 @@ export function FilterableTable<T extends { id: string }>({
             size="sm"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 bg-transparent hover:bg-gray-100"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

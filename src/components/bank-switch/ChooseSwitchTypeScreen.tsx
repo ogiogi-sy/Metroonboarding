@@ -50,8 +50,8 @@ export function ChooseSwitchTypeScreen({ onContinue, onBack }: ChooseSwitchTypeS
           {/* Full Switch */}
           <button
             onClick={() => setSwitchType('full')}
-            className={`text-left bg-white border-2 rounded-2xl p-6 transition-all ${
-              switchType === 'full' ? 'border-accent shadow-lg' : 'border-border hover:border-accent/50'
+            className={`text-left bg-white border-2 rounded-full p-6 transition-all ${
+              switchType === 'full' ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50'
             }`}
           >
             <div className="flex items-start justify-between gap-4 mb-4">
@@ -97,8 +97,8 @@ export function ChooseSwitchTypeScreen({ onContinue, onBack }: ChooseSwitchTypeS
           {/* Partial Switch */}
           <button
             onClick={() => setSwitchType('partial')}
-            className={`text-left bg-white border-2 rounded-2xl p-6 transition-all ${
-              switchType === 'partial' ? 'border-accent shadow-lg' : 'border-border hover:border-accent/50'
+            className={`text-left bg-white border-2 rounded-full p-6 transition-all ${
+              switchType === 'partial' ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/50'
             }`}
           >
             <div className="flex items-start justify-between gap-4 mb-4">
@@ -153,7 +153,7 @@ export function ChooseSwitchTypeScreen({ onContinue, onBack }: ChooseSwitchTypeS
                 min={getMinDate()}
                 value={switchDate}
                 onChange={(e) => setSwitchDate(e.target.value)}
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full px-4 py-3 border border-border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <p className="text-xs text-muted-foreground mt-2">
                 The switch process takes 7 working days. Choose a date at least 7 days from today.

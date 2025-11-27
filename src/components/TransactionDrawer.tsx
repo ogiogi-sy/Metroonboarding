@@ -1,8 +1,18 @@
-import { X, FileText, AlertCircle, CreditCard, Calendar, Tag, Download, Upload, ChevronRight, MessageSquare, MapPin, User } from 'lucide-react';
+import { X, FileText, AlertCircle, CreditCard, Calendar, Tag, Download, Upload, ChevronRight, MessageSquare, MapPin, User, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Label } from './ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 interface Transaction {
   id: string;
@@ -20,18 +30,37 @@ interface Transaction {
   time?: string;
   user?: string;
   location?: string;
+  bnplEligible?: boolean;
+  bnplActive?: boolean;
+  bnplPlan?: {
+    months: number;
+    monthlyAmount: number;
+    nextPaymentDate: string;
+  };
 }
 
 interface TransactionDrawerProps {
   transaction: Transaction | null;
   isOpen: boolean;
   onClose: () => void;
+  onUpdateTransaction?: (updatedTransaction: Transaction) => void;
 }
 
-export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionDrawerProps) {
+export function TransactionDrawer({ transaction, isOpen, onClose, onUpdateTransaction }: TransactionDrawerProps) {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [showBNPLModal, setShowBNPLModal] = useState(false);
+  const [bnplPlanMonths, setBnplPlanMonths] = useState<'3' | '6'>('3');
+  // Local state to track BNPL status if not persisted globally in this prototype
+  const [localBnplActive, setLocalBnplActive] = useState(false);
+  const [localBnplPlan, setLocalBnplPlan] = useState<any>(null);
 
   if (!transaction) return null;
+
+  // Check if transaction is eligible (Mock logic: eligible if it's Slack or Google Ads OR if amount is > 100 and debit)
+  // In a real app, this would be a property on the transaction object
+  const isEligible = transaction.bnplEligible || (transaction.merchantName?.includes('Slack') || transaction.merchantName?.includes('Google') || (transaction.amount < -100 && transaction.type !== 'credit'));
+  const isBnplActive = transaction.bnplActive || localBnplActive;
+  const activePlan = transaction.bnplPlan || localBnplPlan;
 
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -91,7 +120,32 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
   };
 
   const handleSplitInstalments = () => {
-    toast.info('Instalment splitting feature coming soon');
+    setShowBNPLModal(true);
+  };
+
+  const handleConfirmBNPL = () => {
+    const months = parseInt(bnplPlanMonths);
+    const monthlyAmount = Math.abs(transaction.amount) / months;
+    
+    const plan = {
+        months,
+        monthlyAmount,
+        nextPaymentDate: '15 Aug 2025' // Mock date
+    };
+
+    setLocalBnplActive(true);
+    setLocalBnplPlan(plan);
+
+    if (onUpdateTransaction) {
+        onUpdateTransaction({
+            ...transaction,
+            bnplActive: true,
+            bnplPlan: plan
+        });
+    }
+
+    setShowBNPLModal(false);
+    toast.success('Your instalment plan has been set up');
   };
 
   const handleReportProblem = () => {
@@ -115,7 +169,7 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-full sm:w-[500px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col ${
+        className={`fixed right-0 top-0 h-full w-full sm:w-[500px] bg-white border-l border-border z-50 transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -135,11 +189,19 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
             <div className="space-y-6">
                 
                 {/* 1. Main Transaction Card */}
-                <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl border border-border overflow-hidden">
                     {/* Card Header */}
                     <div className="p-6 pb-4 border-b border-border/50 bg-gray-50/50">
                         <div className="flex items-center justify-between gap-3">
-                            <h3 className="font-semibold text-[#001A72] text-lg leading-tight">{transaction.merchantName || transaction.merchant || 'Unknown Merchant'}</h3>
+                            <div>
+                                <h3 className="font-semibold text-[#001A72] text-lg leading-tight">{transaction.merchantName || transaction.merchant || 'Unknown Merchant'}</h3>
+                                {isBnplActive && (
+                                    <Badge className="mt-2 bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-50 font-medium flex w-fit items-center gap-1">
+                                        <CreditCard className="w-3 h-3" />
+                                        In instalments
+                                    </Badge>
+                                )}
+                            </div>
                             <Badge variant="outline" className={`${getStatusColor(transaction.status)} font-normal shrink-0`}>
                                 {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
                             </Badge>
@@ -156,6 +218,24 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
                             {transaction.type === 'credit' ? '+' : ''}{formatAmount(transaction.amount)}
                         </span>
                     </div>
+                    
+                    {/* BNPL Active Summary */}
+                    {isBnplActive && activePlan && (
+                        <div className="mx-6 mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-xl space-y-3">
+                            <div className="flex items-center gap-2 text-indigo-900 font-medium">
+                                <CheckCircle2 className="w-4 h-4 text-indigo-700" />
+                                <h3>Active Instalment Plan</h3>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-sm text-indigo-800">
+                                    {activePlan.months} monthly payments of £{activePlan.monthlyAmount.toFixed(2)}
+                                </p>
+                                <p className="text-xs text-indigo-600">
+                                    Next payment: {activePlan.nextPaymentDate}
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Card Details Grid */}
                     <div className="p-4 bg-white">
@@ -246,7 +326,7 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
 
                 <button
                     onClick={handleAddNote}
-                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
+                    className="w-full flex items-center justify-between p-4 rounded-full border border-border bg-white hover:border-[#0033A0]/50 transition-all group"
                 >
                     <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
@@ -262,7 +342,7 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
 
                 <button
                     onClick={handleAttachReceipt}
-                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
+                    className="w-full flex items-center justify-between p-4 rounded-full border border-border bg-white hover:border-[#0033A0]/50 transition-all group"
                 >
                     <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
@@ -276,25 +356,27 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
                     <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
                 </button>
 
-                <button
-                    onClick={handleSplitInstalments}
-                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
-                >
-                    <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
-                        <CreditCard className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
-                    </div>
-                    <div className="text-left">
-                        <p className="text-sm font-medium text-[#001A72]">Split into Instalments</p>
-                        <p className="text-xs text-muted-foreground">Available for BNPL-eligible transactions</p>
-                    </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
-                </button>
+                {!isBnplActive && isEligible && (
+                    <button
+                        onClick={handleSplitInstalments}
+                        className="w-full flex items-center justify-between p-4 rounded-full border border-border bg-white hover:border-[#0033A0]/50 transition-all group"
+                    >
+                        <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
+                            <CreditCard className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-sm font-medium text-[#001A72]">Pay in Instalments</p>
+                            <p className="text-xs text-muted-foreground">Eligible for BNPL</p>
+                        </div>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-[#0033A0] transition-colors" />
+                    </button>
+                )}
 
                 <button
                     onClick={() => toast.success("Connecting to support...")}
-                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-[#0033A0]/50 hover:shadow-sm transition-all group"
+                    className="w-full flex items-center justify-between p-4 rounded-full border border-border bg-white hover:border-[#0033A0]/50 transition-all group"
                 >
                     <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
@@ -310,7 +392,7 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
 
                 <button
                     onClick={handleReportProblem}
-                    className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-white hover:border-red-200 hover:shadow-sm transition-all group"
+                    className="w-full flex items-center justify-between p-4 rounded-full border border-border bg-white hover:border-red-200 transition-all group"
                 >
                     <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-50 group-hover:bg-red-50 flex items-center justify-center transition-colors">
@@ -331,7 +413,7 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
       {/* Dispute Modal */}
       {showDisputeModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 border border-gray-200">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="text-lg mb-1" style={{ color: '#001A72' }}>Report a Problem</h3>
@@ -348,7 +430,7 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
             <div className="space-y-4 mt-6">
               <div>
                 <label className="text-xs text-muted-foreground uppercase tracking-wide">Reason for dispute</label>
-                <select className="w-full mt-2 px-4 py-3 rounded-lg border border-border bg-white text-sm">
+                <select className="w-full mt-2 px-4 py-3 rounded-[8px] border border-border bg-white text-sm">
                   <option>I don't recognize this transaction</option>
                   <option>Incorrect amount charged</option>
                   <option>Duplicate charge</option>
@@ -360,7 +442,7 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
               <div>
                 <label className="text-xs text-muted-foreground uppercase tracking-wide">Additional details (optional)</label>
                 <textarea
-                  className="w-full mt-2 px-4 py-3 rounded-lg border border-border bg-white text-sm resize-none"
+                  className="w-full mt-2 px-4 py-3 rounded-[8px] border border-border bg-white text-sm resize-none"
                   rows={4}
                   placeholder="Provide any additional information..."
                 />
@@ -385,6 +467,66 @@ export function TransactionDrawer({ transaction, isOpen, onClose }: TransactionD
           </div>
         </div>
       )}
+
+      {/* BNPL Modal */}
+      <Dialog open={showBNPLModal} onOpenChange={setShowBNPLModal}>
+        <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+                <DialogTitle>Split this payment into instalments</DialogTitle>
+                <DialogDescription>
+                    Spread the cost of this purchase over several months.
+                </DialogDescription>
+            </DialogHeader>
+
+            {transaction && (
+                <div className="py-4 space-y-6">
+                    {/* Transaction Summary */}
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Merchant</span>
+                            <span className="font-medium text-[#001A72]">{transaction.merchantName || transaction.merchant}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Amount</span>
+                            <span className="font-medium text-[#001A72]">£{Math.abs(transaction.amount).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Card ending</span>
+                            <span className="font-medium text-[#001A72]">{transaction.cardUsed || '4532'}</span>
+                        </div>
+                    </div>
+
+                    {/* Plan Selection */}
+                    <div className="space-y-3">
+                        <Label>Choose a plan</Label>
+                        <RadioGroup value={bnplPlanMonths} onValueChange={(val: any) => setBnplPlanMonths(val)}>
+                            <div className={`flex items-center space-x-3 border p-3 rounded-lg cursor-pointer transition-all ${bnplPlanMonths === '3' ? 'border-[#0033A0] bg-blue-50/30' : 'border-gray-200'}`}>
+                                <RadioGroupItem value="3" id="plan-3" />
+                                <Label htmlFor="plan-3" className="flex-1 cursor-pointer">
+                                    <span className="font-medium block">3 monthly payments</span>
+                                    <span className="text-xs text-gray-500">3 × £{(Math.abs(transaction.amount) / 3).toFixed(2)} per month</span>
+                                </Label>
+                            </div>
+                            <div className={`flex items-center space-x-3 border p-3 rounded-lg cursor-pointer transition-all ${bnplPlanMonths === '6' ? 'border-[#0033A0] bg-blue-50/30' : 'border-gray-200'}`}>
+                                <RadioGroupItem value="6" id="plan-6" />
+                                <Label htmlFor="plan-6" className="flex-1 cursor-pointer">
+                                    <span className="font-medium block">6 monthly payments</span>
+                                    <span className="text-xs text-gray-500">6 × £{(Math.abs(transaction.amount) / 6).toFixed(2)} per month</span>
+                                </Label>
+                            </div>
+                        </RadioGroup>
+                    </div>
+                </div>
+            )}
+
+            <DialogFooter>
+                <Button variant="secondary" onClick={() => setShowBNPLModal(false)}>Cancel</Button>
+                <Button onClick={handleConfirmBNPL} className="bg-[#0033A0] hover:bg-[#002b87] text-white">
+                    Confirm instalment plan
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

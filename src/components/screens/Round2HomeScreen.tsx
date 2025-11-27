@@ -7,8 +7,7 @@ import { LendingManagementScreen } from './LendingManagementScreen';
 import { LendingFlow, LendingApplicationData } from '../lending/LendingFlow';
 import { AdminCenterScreen } from './AdminCenterScreen';
 import { NavigationSidebar } from '../NavigationSidebar';
-
-import { MobileNav } from '../MobileNav';
+import { DashboardHeader } from '../DashboardHeader';
 
 const LENDING_STORAGE_KEY = 'metro_lending_application_draft';
 
@@ -186,68 +185,58 @@ export function Round2HomeScreen({
 
       {/* Main Content Area */}
       <div className="flex-1 lg:ml-64">
-        {/* Top Header */}
-        <header className="bg-white border-b border-border sticky top-0 z-10">
-          <div className="px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              {/* Left: Page Title */}
-              <div className="flex items-center gap-4">
-                <MobileNav
-                  activeSection={activeView}
-                  onNavigate={(section: string) => {
-                    if (section === 'home') {
-                      setActiveView('home');
-                      onNavigate('home');
-                    } else if (section === 'lending') {
-                      setActiveView('lending');
-                      onNavigate('lending');
-                    } else if (section === 'admin') {
-                      setActiveView('admin');
-                      onNavigate('admin');
-                    } else if (section === 'dashboard') {
-                      onNavigate('dashboard');
-                    } else if (section === 'propositions') {
-                      onNavigate('propositions');
-                    } else {
-                      // Handle other sections
-                      onNavigate(section as any);
-                    }
-                  }}
-                  businessData={businessData}
-                  selectedAccounts={selectedAccounts}
-                  onAccountSelectionChange={onAccountSelectionChange}
-                />
-                <div>
-                  <h1 className="text-2xl" style={{ color: '#001A72' }}>Dashboard</h1>
-                  <p className="text-sm text-muted-foreground">Welcome back to Metro Bank</p>
-                </div>
-              </div>
+        <DashboardHeader 
+          activeSection={activeView}
+          onNavigate={(section: string) => {
+            if (section === 'home') {
+              setActiveView('home');
+              onNavigate('home');
+            } else if (section === 'lending') {
+              setActiveView('lending');
+              onNavigate('lending');
+            } else if (section === 'admin') {
+              setActiveView('admin');
+              onNavigate('admin');
+            } else if (section === 'dashboard') {
+              onNavigate('dashboard');
+            } else if (section === 'propositions') {
+              onNavigate('propositions');
+            } else {
+              onNavigate(section as any);
+            }
+          }}
+          businessData={businessData}
+          selectedAccounts={selectedAccounts}
+          onAccountSelectionChange={onAccountSelectionChange}
+        />
 
-              {/* Right: Actions */}
-              <div className="flex items-center gap-3">
-                <button className="w-10 h-10 rounded-full hover:bg-muted/50 flex items-center justify-center transition-colors">
-                  <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-                <button className="w-10 h-10 rounded-full hover:bg-muted/50 flex items-center justify-center transition-colors relative">
-                  <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full"></span>
-                </button>
-                <button className="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center">
-                  <span className="text-sm">
-                    {businessData.companyName ? businessData.companyName.charAt(0) : 'B'}
-                  </span>
-                </button>
-              </div>
-            </div>
+        {/* Page Header */}
+        <div className="px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+             {activeView === 'lending' ? (
+               <div>
+                 <h1 className="text-2xl" style={{ color: '#001A72' }}>Lending</h1>
+                 <p className="text-sm text-muted-foreground">Manage your business borrowing</p>
+               </div>
+             ) : activeView === 'funding' ? (
+               <div>
+                 <h1 className="text-2xl" style={{ color: '#001A72' }}>Funding Application</h1>
+                 <p className="text-sm text-muted-foreground">Apply for business finance</p>
+               </div>
+             ) : activeView === 'admin' ? (
+               <div>
+                 <h1 className="text-2xl" style={{ color: '#001A72' }}>Admin Center</h1>
+                 <p className="text-sm text-muted-foreground">Manage your account settings</p>
+               </div>
+             ) : (
+               <div>
+                 <h1 className="text-2xl" style={{ color: '#001A72' }}>Dashboard</h1>
+                 <p className="text-sm text-muted-foreground">Welcome back to Metro Bank</p>
+               </div>
+             )}
           </div>
-        </header>
 
         {/* Dashboard Content */}
-        <div className="px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 pb-8 pt-4">
           {activeView === 'lending' ? (
             <LendingManagementScreen 
               onNavigate={(screen: string) => {

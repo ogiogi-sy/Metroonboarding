@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { AlertTriangle, Shield, Plus, X, Upload, FileText } from 'lucide-react';
+import { Plus, X, Upload, Search, Building2, CreditCard, Banknote, Smartphone, HelpCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { mockComplaints, mockDisputes, Complaint, Dispute, TimelineEvent } from '../../data/support';
+import { mockComplaints, Complaint, TimelineEvent } from '../../data/support';
 import { TimelineComponent } from './TimelineComponent';
 import { toast } from 'sonner@2.0.3';
 
@@ -10,28 +10,20 @@ interface ComplaintsDisputesProps {
   onNavigate: (section: string) => void;
 }
 
-const COMPLAINT_CATEGORIES = [
-  'Account Issue',
-  'Card Issue',
-  'Payment Issue',
-  'App or Service',
-  'Other',
-];
-
-const DISPUTE_REASONS = [
-  'Fraud',
-  'Not Authorized',
-  'Goods Not Received',
-  'Quality Issue',
-  'Duplicate Charge',
+const COMPLAINT_TYPES = [
+  { id: 'account', label: 'Account Issue', icon: Building2 },
+  { id: 'card', label: 'Card Issue', icon: CreditCard },
+  { id: 'payment', label: 'Payment Issue', icon: Banknote },
+  { id: 'app', label: 'App or Service', icon: Smartphone },
+  { id: 'other', label: 'Other', icon: HelpCircle },
 ];
 
 export function ComplaintsDisputes({ onNavigate }: ComplaintsDisputesProps) {
-  const [activeTab, setActiveTab] = useState<'complaints' | 'disputes'>('complaints');
-  const [selectedItem, setSelectedItem] = useState<Complaint | Dispute | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Complaint | null>(null);
   const [showDrawer, setShowDrawer] = useState(false);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newComplaintStep, setNewComplaintStep] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -61,12 +53,12 @@ export function ComplaintsDisputes({ onNavigate }: ComplaintsDisputesProps) {
     });
   };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-    }).format(amount);
-  };
+  const filteredComplaints = mockComplaints.filter(complaint => 
+    complaint.caseNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    complaint.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    complaint.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    complaint.status.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const mockComplaintTimeline: TimelineEvent[] = [
     {
@@ -105,74 +97,59 @@ export function ComplaintsDisputes({ onNavigate }: ComplaintsDisputesProps) {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-        <div className="max-w-[1400px] mx-auto p-8">
+      <div className="h-full flex flex-col">
+        <div className="flex-1 w-full max-w-[1400px] mx-auto p-8 flex flex-col min-h-0">
           {/* Header */}
-          <div className="flex items-start justify-between mb-8">
-            <div>
-              <h1 className="text-2xl mb-2" style={{ color: '#001A72' }}>Complaints & Disputes</h1>
-              <p className="text-sm text-muted-foreground">
-                Submit and track complaints and transaction disputes
-              </p>
-            </div>
-            
+          <div className="flex items-center justify-end gap-4 mb-8">
+             <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search complaints..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-10 pl-10 pr-4 rounded-lg border border-border bg-white text-sm w-64 focus:outline-none focus:ring-2 focus:ring-accent/20"
+                />
+              </div>
             <Button
               onClick={() => {
                 setShowNewModal(true);
                 setNewComplaintStep(1);
               }}
-              className="bg-accent hover:bg-accent/90 text-white gap-2"
+              className="h-10 rounded-lg bg-accent hover:bg-accent/90 text-white gap-2 shadow-sm"
             >
               <Plus className="h-4 w-4" />
-              New {activeTab === 'complaints' ? 'Complaint' : 'Dispute'}
+              New Complaint
             </Button>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setActiveTab('complaints')}
-              className={`px-4 py-2 rounded-lg text-sm transition-all ${
-                activeTab === 'complaints'
-                  ? 'bg-accent text-white'
-                  : 'bg-white border border-border hover:border-accent/50'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                Complaints ({mockComplaints.length})
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('disputes')}
-              className={`px-4 py-2 rounded-lg text-sm transition-all ${
-                activeTab === 'disputes'
-                  ? 'bg-accent text-white'
-                  : 'bg-white border border-border hover:border-accent/50'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Disputes ({mockDisputes.length})
-              </div>
-            </button>
+          {/* Mobile Search */}
+          <div className="md:hidden mb-6 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search complaints..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-accent/20"
+            />
           </div>
 
           {/* Content */}
-          {activeTab === 'complaints' ? (
-            <div className="bg-white rounded-xl border border-border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/30 border-b border-border">
-                  <tr>
-                    <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Case Number</th>
-                    <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Category</th>
-                    <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Description</th>
-                    <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Status</th>
-                    <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {mockComplaints.map((complaint) => (
+          <div className="bg-white rounded-xl border border-border overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted/30 border-b border-border">
+                <tr>
+                  <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Case Number</th>
+                  <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Category</th>
+                  <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Description</th>
+                  <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Status</th>
+                  <th className="text-left px-4 py-3 text-xs text-muted-foreground uppercase tracking-wide">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredComplaints.length > 0 ? (
+                  filteredComplaints.map((complaint) => (
                     <tr
                       key={complaint.caseNumber}
                       onClick={() => {
@@ -199,185 +176,153 @@ export function ComplaintsDisputes({ onNavigate }: ComplaintsDisputesProps) {
                         <p className="text-sm text-muted-foreground">{formatDate(complaint.date)}</p>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {mockDisputes.map((dispute) => (
-                <button
-                  key={dispute.id}
-                  onClick={() => {
-                    setSelectedItem(dispute);
-                    setShowDrawer(true);
-                  }}
-                  className="w-full bg-white rounded-xl border border-border p-6 hover:border-accent hover:shadow-md transition-all text-left"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">{dispute.id}</p>
-                      <h3 className="text-lg mb-2" style={{ color: '#001A72' }}>{dispute.merchant}</h3>
-                      <Badge className={getStatusColor(dispute.status) + ' border-0'}>
-                        {dispute.status}
-                      </Badge>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl" style={{ color: '#001A72' }}>{formatAmount(dispute.amount)}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {dispute.cardLast4 && `Card •••• ${dispute.cardLast4}`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground mb-1">Reason</p>
-                      <p style={{ color: '#001A72' }}>{dispute.reason}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground mb-1">Transaction Date</p>
-                      <p style={{ color: '#001A72' }}>{formatDate(dispute.date)}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground mb-1">Submitted</p>
-                      <p style={{ color: '#001A72' }}>{formatDate(dispute.submittedDate)}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                      No complaints found matching your search.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* New Complaint/Dispute Modal */}
+      {/* New Complaint Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-lg mb-1" style={{ color: '#001A72' }}>
-                  {activeTab === 'complaints' ? 'New Complaint' : 'New Dispute'}
-                </h3>
-                <p className="text-sm text-muted-foreground">Step {newComplaintStep} of 4</p>
-              </div>
-              <button
-                onClick={() => setShowNewModal(false)}
-                className="w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {activeTab === 'complaints' && newComplaintStep === 1 && (
-              <div className="space-y-4">
+        <>
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" onClick={() => setShowNewModal(false)} />
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+          <div className={`bg-white rounded-2xl border border-border shadow-xl w-full pointer-events-auto overflow-hidden flex flex-col max-h-[90vh] ${newComplaintStep === 1 ? 'max-w-2xl' : 'max-w-md'}`}>
+             <div className="p-6 border-b border-border flex items-center justify-between bg-gray-50/50 shrink-0">
                 <div>
-                  <label className="text-xs text-muted-foreground uppercase tracking-wide block mb-2">
-                    Select Category
-                  </label>
-                  <div className="space-y-2">
-                    {COMPLAINT_CATEGORIES.map((category) => (
-                      <button
-                        key={category}
-                        onClick={() => setNewComplaintStep(2)}
-                        className="w-full px-4 py-3 rounded-lg border border-border hover:border-accent hover:bg-accent/5 text-left text-sm transition-all"
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {newComplaintStep === 2 && (
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs text-muted-foreground uppercase tracking-wide block mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    placeholder="Please describe your complaint in detail..."
-                    className="w-full px-4 py-3 rounded-lg border border-border text-sm resize-none h-32"
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setNewComplaintStep(1)}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    className="flex-1 bg-accent hover:bg-accent/90"
-                    onClick={() => setNewComplaintStep(3)}
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {newComplaintStep === 3 && (
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs text-muted-foreground uppercase tracking-wide block mb-2">
-                    Attach Evidence (Optional)
-                  </label>
-                  <button className="w-full px-4 py-8 rounded-lg border-2 border-dashed border-border hover:border-accent hover:bg-accent/5 text-center transition-all">
-                    <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Click to upload files</p>
-                  </button>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setNewComplaintStep(2)}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    className="flex-1 bg-accent hover:bg-accent/90"
-                    onClick={() => setNewComplaintStep(4)}
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {newComplaintStep === 4 && (
-              <div className="space-y-4">
-                <div className="bg-muted/30 rounded-lg p-4">
-                  <p className="text-sm mb-2" style={{ color: '#001A72' }}>Review Your Submission</p>
+                  <h2 className="text-xl font-semibold" style={{ color: '#001A72' }}>New Complaint</h2>
                   <p className="text-sm text-muted-foreground">
-                    Please review the details before submitting. We'll investigate and respond within 5 working days.
+                    {newComplaintStep === 1 ? 'Select a category for your complaint' : `Step ${newComplaintStep} of 4`}
                   </p>
                 </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setNewComplaintStep(3)}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    className="flex-1 bg-accent hover:bg-accent/90"
-                    onClick={() => {
-                      toast.success('Complaint submitted successfully');
-                      setShowNewModal(false);
-                    }}
-                  >
-                    Submit
-                  </Button>
-                </div>
-              </div>
-            )}
+                <button
+                  onClick={() => setShowNewModal(false)}
+                  className="w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
+                >
+                  <X className="h-5 w-5 text-muted-foreground" />
+                </button>
+             </div>
+
+             <div className="p-6 overflow-y-auto">
+               {newComplaintStep === 1 && (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                   {COMPLAINT_TYPES.map((type) => {
+                      const Icon = type.icon;
+                      return (
+                        <button
+                          key={type.id}
+                          onClick={() => setNewComplaintStep(2)}
+                          className="flex flex-col items-center p-6 rounded-xl border border-border hover:border-accent hover:bg-accent/5 hover:shadow-md transition-all group text-center h-full"
+                        >
+                          <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <Icon className="h-6 w-6 text-accent" />
+                          </div>
+                          <h3 className="font-medium text-[#001A72] mb-1">{type.label}</h3>
+                          <p className="text-xs text-muted-foreground">Start new claim</p>
+                        </button>
+                      );
+                    })}
+                 </div>
+               )}
+
+               {newComplaintStep === 2 && (
+                 <div className="space-y-4">
+                   <div>
+                     <label className="text-xs text-muted-foreground uppercase tracking-wide block mb-2">
+                       Description
+                     </label>
+                     <textarea
+                       placeholder="Please describe your complaint in detail..."
+                       className="w-full px-4 py-3 rounded-lg border border-border text-sm resize-none h-32 focus:outline-none focus:ring-2 focus:ring-accent/20"
+                     />
+                   </div>
+                   <div className="flex gap-3 pt-2">
+                     <Button
+                       variant="outline"
+                       className="flex-1"
+                       onClick={() => setNewComplaintStep(1)}
+                     >
+                       Back
+                     </Button>
+                     <Button
+                       className="flex-1 bg-accent hover:bg-accent/90"
+                       onClick={() => setNewComplaintStep(3)}
+                     >
+                       Continue
+                     </Button>
+                   </div>
+                 </div>
+               )}
+
+               {newComplaintStep === 3 && (
+                 <div className="space-y-4">
+                   <div>
+                     <label className="text-xs text-muted-foreground uppercase tracking-wide block mb-2">
+                       Attach Evidence (Optional)
+                     </label>
+                     <button className="w-full px-4 py-8 rounded-lg border-2 border-dashed border-border hover:border-accent hover:bg-accent/5 text-center transition-all">
+                       <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                       <p className="text-sm text-muted-foreground">Click to upload files</p>
+                     </button>
+                   </div>
+                   <div className="flex gap-3 pt-2">
+                     <Button
+                       variant="outline"
+                       className="flex-1"
+                       onClick={() => setNewComplaintStep(2)}
+                     >
+                       Back
+                     </Button>
+                     <Button
+                       className="flex-1 bg-accent hover:bg-accent/90"
+                       onClick={() => setNewComplaintStep(4)}
+                     >
+                       Continue
+                     </Button>
+                   </div>
+                 </div>
+               )}
+
+               {newComplaintStep === 4 && (
+                 <div className="space-y-4">
+                   <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                     <p className="text-sm font-medium mb-2" style={{ color: '#001A72' }}>Review Your Submission</p>
+                     <p className="text-sm text-muted-foreground leading-relaxed">
+                       Please review the details before submitting. We'll investigate and respond within 5 working days.
+                     </p>
+                   </div>
+                   <div className="flex gap-3 pt-2">
+                     <Button
+                       variant="outline"
+                       className="flex-1"
+                       onClick={() => setNewComplaintStep(3)}
+                     >
+                       Back
+                     </Button>
+                     <Button
+                       className="flex-1 bg-accent hover:bg-accent/90"
+                       onClick={() => {
+                         toast.success('Complaint submitted successfully');
+                         setShowNewModal(false);
+                       }}
+                     >
+                       Submit
+                     </Button>
+                   </div>
+                 </div>
+               )}
+             </div>
           </div>
         </div>
+        </>
       )}
 
       {/* Detail Drawer */}
@@ -392,10 +337,10 @@ export function ComplaintsDisputes({ onNavigate }: ComplaintsDisputesProps) {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">
-                    {'caseNumber' in selectedItem ? selectedItem.caseNumber : selectedItem.id}
+                    {selectedItem.caseNumber}
                   </p>
                   <h2 className="text-lg mb-2" style={{ color: '#001A72' }}>
-                    {'category' in selectedItem ? selectedItem.category : selectedItem.merchant}
+                    {selectedItem.category}
                   </h2>
                   <Badge className={getStatusColor(selectedItem.status) + ' border-0'}>
                     {selectedItem.status}
@@ -412,7 +357,7 @@ export function ComplaintsDisputes({ onNavigate }: ComplaintsDisputesProps) {
               <div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Description</p>
                 <p className="text-sm" style={{ color: '#001A72' }}>
-                  {'description' in selectedItem ? selectedItem.description : `Transaction dispute for ${formatAmount(selectedItem.amount)}`}
+                  {selectedItem.description}
                 </p>
               </div>
 

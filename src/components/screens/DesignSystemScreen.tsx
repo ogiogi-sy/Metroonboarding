@@ -61,13 +61,13 @@ export function DesignSystemScreen({ onBack }: DesignSystemScreenProps) {
             <div className="space-y-3">
               <h4 className="text-lg text-[#000D45]">Primary</h4>
               <div className="space-y-2">
-                <div className="h-24 rounded-lg bg-[#0033A0] flex items-end p-3 shadow-sm">
+                <div className="h-24 rounded-lg bg-[#0033A0] flex items-end p-3">
                   <div className="text-white text-sm">Primary Blue<br/>#0033A0</div>
                 </div>
-                <div className="h-24 rounded-lg bg-[#001A72] flex items-end p-3 shadow-sm">
+                <div className="h-24 rounded-lg bg-[#001A72] flex items-end p-3">
                   <div className="text-white text-sm">Dark Blue<br/>#001A72</div>
                 </div>
-                <div className="h-24 rounded-lg bg-[#E4002B] flex items-end p-3 shadow-sm">
+                <div className="h-24 rounded-lg bg-[#E4002B] flex items-end p-3">
                   <div className="text-white text-sm">Primary Red<br/>#E4002B</div>
                 </div>
               </div>
@@ -77,28 +77,28 @@ export function DesignSystemScreen({ onBack }: DesignSystemScreenProps) {
             <div className="space-y-3">
               <h4 className="text-lg text-[#000D45]">Neutrals</h4>
               <div className="space-y-2">
-                <div className="h-12 rounded-lg bg-[#000D45] flex items-center px-3 shadow-sm">
+                <div className="h-12 rounded-lg bg-[#000D45] flex items-center px-3">
                   <div className="text-white text-sm">Black #000D45</div>
                 </div>
-                <div className="h-12 rounded-lg bg-[#334155] flex items-center px-3 shadow-sm">
+                <div className="h-12 rounded-lg bg-[#334155] flex items-center px-3">
                   <div className="text-white text-sm">Gray 700 #334155</div>
                 </div>
-                <div className="h-12 rounded-lg bg-[#475569] flex items-center px-3 shadow-sm">
+                <div className="h-12 rounded-lg bg-[#475569] flex items-center px-3">
                   <div className="text-white text-sm">Gray 600 #475569</div>
                 </div>
-                <div className="h-12 rounded-lg bg-[#94A3B8] flex items-center px-3 shadow-sm">
+                <div className="h-12 rounded-lg bg-[#94A3B8] flex items-center px-3">
                   <div className="text-white text-sm">Gray 400 #94A3B8</div>
                 </div>
-                <div className="h-12 rounded-lg bg-[#CBD5E1] flex items-center px-3 shadow-sm border border-gray-200">
+                <div className="h-12 rounded-lg bg-[#CBD5E1] flex items-center px-3 border border-gray-200">
                   <div className="text-[#000D45] text-sm">Gray 300 #CBD5E1</div>
                 </div>
-                <div className="h-12 rounded-lg bg-[#E2E8F0] flex items-center px-3 shadow-sm border border-gray-200">
+                <div className="h-12 rounded-lg bg-[#E2E8F0] flex items-center px-3 border border-gray-200">
                   <div className="text-[#000D45] text-sm">Gray 200 #E2E8F0</div>
                 </div>
-                <div className="h-12 rounded-lg bg-[#F5F7FA] flex items-center px-3 shadow-sm border border-gray-200">
+                <div className="h-12 rounded-lg bg-[#F5F7FA] flex items-center px-3 border border-gray-200">
                   <div className="text-[#000D45] text-sm">Gray 100 #F5F7FA</div>
                 </div>
-                <div className="h-12 rounded-lg bg-white flex items-center px-3 shadow-sm border border-gray-200">
+                <div className="h-12 rounded-lg bg-white flex items-center px-3 border border-gray-200">
                   <div className="text-[#000D45] text-sm">White #FFFFFF</div>
                 </div>
               </div>
@@ -108,10 +108,10 @@ export function DesignSystemScreen({ onBack }: DesignSystemScreenProps) {
             <div className="space-y-3">
               <h4 className="text-lg text-[#000D45]">Backgrounds</h4>
               <div className="space-y-2">
-                <div className="h-24 rounded-lg bg-[#E9F2FF] flex items-end p-3 shadow-sm border border-blue-100">
+                <div className="h-24 rounded-lg bg-[#E9F2FF] flex items-end p-3 border border-blue-100">
                   <div className="text-[#0033A0] text-sm">Light Blue BG<br/>#E9F2FF</div>
                 </div>
-                <div className="h-24 rounded-lg bg-[#F5F7FA] flex items-end p-3 shadow-sm border border-gray-200">
+                <div className="h-24 rounded-lg bg-[#F5F7FA] flex items-end p-3 border border-gray-200">
                   <div className="text-[#000D45] text-sm">Page BG<br/>#F5F7FA</div>
                 </div>
               </div>
@@ -121,13 +121,13 @@ export function DesignSystemScreen({ onBack }: DesignSystemScreenProps) {
             <div className="space-y-3">
               <h4 className="text-lg text-[#000D45]">Semantic</h4>
               <div className="space-y-2">
-                <div className="h-16 rounded-lg bg-[#16A34A] flex items-end p-3 shadow-sm">
+                <div className="h-16 rounded-lg bg-[#16A34A] flex items-end p-3">
                   <div className="text-white text-sm">Success #16A34A</div>
                 </div>
-                <div className="h-16 rounded-lg bg-[#EA580C] flex items-end p-3 shadow-sm">
+                <div className="h-16 rounded-lg bg-[#EA580C] flex items-end p-3">
                   <div className="text-white text-sm">Warning #EA580C</div>
                 </div>
-                <div className="h-16 rounded-lg bg-[#B91C1C] flex items-end p-3 shadow-sm">
+                <div className="h-16 rounded-lg bg-[#B91C1C] flex items-end p-3">
                   <div className="text-white text-sm">Error #B91C1C</div>
                 </div>
               </div>

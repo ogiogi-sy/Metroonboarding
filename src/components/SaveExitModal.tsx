@@ -64,7 +64,7 @@ export function SaveExitModal({ isOpen, onClose }: SaveExitModalProps) {
               {/* QR Code Option */}
               <button
                 onClick={() => setSelectedOption('qr')}
-                className="w-full p-4 border border-border rounded-xl hover:border-accent hover:bg-blue-tint transition-colors text-left group"
+                className="w-full p-4 border border-border rounded-full hover:border-accent hover:bg-blue-tint transition-colors text-left group"
               >
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-blue-tint rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10">
@@ -82,7 +82,7 @@ export function SaveExitModal({ isOpen, onClose }: SaveExitModalProps) {
               {/* Email Option */}
               <button
                 onClick={() => setSelectedOption('email')}
-                className="w-full p-4 border border-border rounded-xl hover:border-accent hover:bg-blue-tint transition-colors text-left group"
+                className="w-full p-4 border border-border rounded-full hover:border-accent hover:bg-blue-tint transition-colors text-left group"
               >
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-blue-tint rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10">

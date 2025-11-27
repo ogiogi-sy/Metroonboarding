@@ -202,7 +202,7 @@ export function PeopleRolesScreen({
             
             return (
               <div key={person.id} className={`bg-white border rounded-2xl p-6 transition-all ${
-                person.isYou ? 'border-accent shadow-sm' : 'border-border'
+                person.isYou ? 'border-accent' : 'border-border'
               }`}>
                 {/* Header with Avatar, Name, and "This is me" */}
                 <div className="flex items-start gap-4 mb-6">
@@ -285,26 +285,26 @@ export function PeopleRolesScreen({
                     
                     {/* Email/Phone Switch */}
                     <div className="inline-flex bg-muted/30 rounded-lg p-1 mb-3">
-                      <button
-                        type="button"
-                        onClick={() => setContactMethod(prev => ({ ...prev, [person.id]: 'email' }))}
-                        className={`px-4 py-1.5 text-sm rounded-md transition-all ${
-                          contactMethod[person.id] !== 'phone'
-                            ? 'bg-white text-accent shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
+                        <button
+                          type="button"
+                          onClick={() => setContactMethod(prev => ({ ...prev, [person.id]: 'email' }))}
+                          className={`px-4 py-1.5 text-sm rounded-md transition-all ${
+                            contactMethod[person.id] !== 'phone'
+                              ? 'bg-white text-accent'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
                         Email
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setContactMethod(prev => ({ ...prev, [person.id]: 'phone' }))}
-                        className={`px-4 py-1.5 text-sm rounded-md transition-all ${
-                          contactMethod[person.id] === 'phone'
-                            ? 'bg-white text-accent shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
+                        <button
+                          type="button"
+                          onClick={() => setContactMethod(prev => ({ ...prev, [person.id]: 'phone' }))}
+                          className={`px-4 py-1.5 text-sm rounded-md transition-all ${
+                            contactMethod[person.id] === 'phone'
+                              ? 'bg-white text-accent'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
                         Phone
                       </button>
                     </div>

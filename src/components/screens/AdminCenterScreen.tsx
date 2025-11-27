@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowLeftRight, Users } from 'lucide-react';
+import { ArrowRight, ArrowLeftRight, Users, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { BankSwitchFlow } from '../bank-switch/BankSwitchFlow';
 import { TeamDirectorsScreen } from './TeamDirectorsScreen';
@@ -9,6 +9,7 @@ import { DirectorDetailScreen } from './DirectorDetailScreen';
 import { TeamMemberDetailScreen } from './TeamMemberDetailScreen';
 import { MandatesEditorScreen } from './MandatesEditorScreen';
 import { SignaturesRepositoryScreen } from './SignaturesRepositoryScreen';
+import { CloseAccountScreen } from './CloseAccountScreen';
 
 interface AdminCenterScreenProps {
   onNavigate: (screen: string) => void;
@@ -25,10 +26,26 @@ type AdminSubScreen =
   | 'team-member-detail' 
   | 'mandates-editor' 
   | 'signatures-repository'
-  | 'bank-switch';
+  | 'bank-switch'
+  | 'close-account';
 
 export function AdminCenterScreen({ onNavigate, businessData }: AdminCenterScreenProps) {
   const [subScreen, setSubScreen] = useState<AdminSubScreen>('main');
+
+  if (subScreen === 'close-account') {
+    return (
+      <CloseAccountScreen
+        onNavigate={(screen: string) => {
+          if (screen === 'admin') {
+            setSubScreen('main');
+          } else {
+            onNavigate(screen);
+          }
+        }}
+        businessData={businessData}
+      />
+    );
+  }
 
   if (subScreen === 'bank-switch') {
     return (
@@ -179,7 +196,7 @@ export function AdminCenterScreen({ onNavigate, businessData }: AdminCenterScree
         {/* Team & Directors */}
         <button 
           onClick={() => setSubScreen('team-directors')}
-          className="w-full bg-white border border-border rounded-xl p-6 text-left hover:border-accent hover:shadow-md transition-all group"
+          className="w-full bg-white border border-border rounded-xl p-6 text-left hover:border-accent transition-all group"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -200,7 +217,7 @@ export function AdminCenterScreen({ onNavigate, businessData }: AdminCenterScree
         {/* Switch from another bank */}
         <button 
           onClick={() => setSubScreen('bank-switch')}
-          className="w-full bg-white border border-border rounded-xl p-6 text-left hover:border-accent hover:shadow-md transition-all group"
+          className="w-full bg-white border border-border rounded-xl p-6 text-left hover:border-accent transition-all group"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -224,6 +241,17 @@ export function AdminCenterScreen({ onNavigate, businessData }: AdminCenterScree
         <p className="text-sm text-muted-foreground">
           More administrative options coming soon
         </p>
+      </div>
+
+      {/* Danger Zone / Close Account */}
+      <div className="mt-12 pt-8 border-t border-border">
+        <button 
+          onClick={() => setSubScreen('close-account')}
+          className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-600 transition-colors px-4 py-2 rounded-lg hover:bg-red-50"
+        >
+          <AlertCircle className="w-4 h-4" />
+          Close my account or switch to another provider
+        </button>
       </div>
     </div>
   );
